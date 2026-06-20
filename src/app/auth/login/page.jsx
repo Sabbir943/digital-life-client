@@ -5,8 +5,11 @@ import Link from 'next/link';
 import toast from 'react-hot-toast';
 import { FiCompass, FiMail, FiLock, FiLogIn } from 'react-icons/fi';
 import { FcGoogle } from 'react-icons/fc';
+import { authClient } from '@/lib/auth-client';
+import { useRouter } from 'next/navigation';
 
 const LoginPage = () => {
+    const router = useRouter();
     const [formData, setFormData] = useState({
         email: '',
         password: ''
@@ -19,15 +22,25 @@ const LoginPage = () => {
         setFormData(prev => ({ ...prev, [name]: value }));
     };
 
-    const handleGoogleLogin = () => {
+    const handleGoogleLogin = async () => {
         toast.loading("Connecting to Google...", { id: "google-auth" });
-        // Better Auth Google sign-in methods would trigger here
+        try {
+            await authClient.signIn.social({
+                provider: "google",
+                callbackURL: "/"
+            });
+        } catch (err) {
+            toast.error("Google login failed.", { id: "google-auth" });
+        }
     };
 
     const handleSubmit = async (e) => {
         e.preventDefault();
 
-        if (!formData.email || !formData.password) {
+        // Fix 1: Destructure variables safely from state container
+        const { email, password } = formData;
+
+        if (!email || !password) {
             toast.error("Please enter both email and password.");
             return;
         }
@@ -35,15 +48,26 @@ const LoginPage = () => {
         setIsSubmitting(true);
         const loadToastId = toast.loading("Authenticating credentials...");
 
+        // Fix 2: Wrap the entire operational auth client loop inside the try-catch block
         try {
-            // Simulated Better-Auth sign-in delay
-            await new Promise(resolve => setTimeout(resolve, 1200));
-            
-            toast.success("Welcome back to AuraLife!", { id: loadToastId });
-            
-            // Redirect logic would go here (e.g., router.push('/dashboard'))
+            const { data, error } = await authClient.signIn.email({
+                email,
+                password,
+            });
+
+            if (error) {
+                toast.error(error.message || "Invalid credentials. Please try again.", { id: loadToastId });
+                return;
+            }
+
+            if (data) {
+                toast.success("Welcome back to AuraLife!", { id: loadToastId });
+                router.push('/');
+                router.refresh();
+            }
         } catch (err) {
-            toast.error("Invalid email or password. Please try again.", { id: loadToastId });
+            toast.error("An unexpected error occurred during login.", { id: loadToastId });
+            console.error(err);
         } finally {
             setIsSubmitting(false);
         }
@@ -138,7 +162,7 @@ const LoginPage = () => {
                 {/* Footer redirection link */}
                 <p className="text-center text-sm text-slate-400 mt-6">
                     New to the platform?{' '}
-                    <Link href="/signup" className="text-indigo-400 font-semibold hover:text-indigo-300 underline underline-offset-4 decoration-indigo-500/40">
+                    <Link href="/auth/register" className="text-indigo-400 font-semibold hover:text-indigo-300 underline underline-offset-4 decoration-indigo-500/40">
                         Register an account here
                     </Link>
                 </p>

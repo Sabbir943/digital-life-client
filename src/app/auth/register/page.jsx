@@ -2,11 +2,16 @@
 
 import React, { useState } from 'react';
 import Link from 'next/link';
+import { useRouter } from 'next/navigation'; // Changed from redirect to useRouter
 import toast from 'react-hot-toast';
 import { FiCompass, FiUser, FiMail, FiLock, FiImage, FiCheck, FiX } from 'react-icons/fi';
 import { FcGoogle } from 'react-icons/fc';
+import { authClient } from '@/lib/auth-client';
+// Import your authClient (Adjust this path to where your Better Auth client configuration sits)
+
 
 const SignupPage = () => {
+    const router = useRouter();
     const [formData, setFormData] = useState({
         name: '',
         email: '',
@@ -28,17 +33,27 @@ const SignupPage = () => {
         setFormData(prev => ({ ...prev, [name]: value }));
     };
 
-    const handleGoogleLogin = () => {
+    const handleGoogleLogin = async () => {
         toast.loading("Connecting to Google...", { id: "google-auth" });
-        // Better Auth implementation would trigger here
+        try {
+            await authClient.signIn.social({
+                provider: "google",
+                callbackURL: "/"
+            });
+        } catch (err) {
+            toast.error("Google authentication failed.", { id: "google-auth" });
+        }
     };
 
     const handleSubmit = async (e) => {
         e.preventDefault();
         
+        // Destructure values safely from local component state
+        const { name, email, password, photoUrl } = formData;
+        
         // Validation check before submitting
-        if (!formData.name || !formData.email || !formData.password) {
-            toast.error("Please fill in all required operational fields.");
+        if (!name || !email || !password) {
+            toast.error("Please fill in all required fields.");
             return;
         }
 
@@ -51,16 +66,30 @@ const SignupPage = () => {
         const loadToastId = toast.loading("Creating your account...");
         
         try {
-            // Simulated Better-Auth registration delay
-            await new Promise(resolve => setTimeout(resolve, 1500));
-            
-            // Success alert update using react-hot-toast dismiss/success flow
-            toast.success("Welcome aboard! Account built successfully.", { id: loadToastId });
-            
-            // Reset form input values
-            setFormData({ name: '', email: '', photoUrl: '', password: '' });
+            // Actual Better Auth Integration execution
+            const { data, error } = await authClient.signUp.email({
+                email, 
+                password, 
+                name, 
+                image: photoUrl || undefined, // Better-Auth uses 'image' instead of 'photoUrl' natively
+            });
+
+            if (error) {
+                // If better-auth returns an error object, handle it gracefully
+                toast.error(error.message || "Registration failed.", { id: loadToastId });
+                return;
+            }
+
+            if (data) {
+                toast.success("Welcome aboard! Account built successfully.", { id: loadToastId });
+                // Reset form input values
+                setFormData({ name: '', email: '', photoUrl: '', password: '' });
+                // Clean redirect via client router instance
+                router.push('/auth/login'); 
+            }
         } catch (err) {
-            toast.error("An unexpected registration event failed.", { id: loadToastId });
+            toast.error("An unexpected registration error occurred.", { id: loadToastId });
+            console.error(err);
         } finally {
             setIsSubmitting(false);
         }
@@ -187,7 +216,7 @@ const SignupPage = () => {
                         </div>
                     </div>
 
-                    {/* Submission Button triggers react-hot-toast hooks */}
+                    {/* Submission Button */}
                     <button
                         type="submit"
                         disabled={isSubmitting}
@@ -197,10 +226,10 @@ const SignupPage = () => {
                     </button>
                 </form>
 
-                {/* Redirection link footer path */}
+                {/* Redirection link */}
                 <p className="text-center text-sm text-slate-400 mt-6">
                     Already have an account?{' '}
-                    <Link href="/login" className="text-indigo-400 font-semibold hover:text-indigo-300 underline underline-offset-4 decoration-indigo-500/40">
+                    <Link href="/auth/login" className="text-indigo-400 font-semibold hover:text-indigo-300 underline underline-offset-4 decoration-indigo-500/40">
                         Sign In here
                     </Link>
                 </p>
