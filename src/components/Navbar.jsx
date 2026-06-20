@@ -48,8 +48,9 @@ const Navbar = ({ session, userPlan = "Free" }) => {
                             Home
                         </Link>
                         <Link href="/lessons" className={getLinkClass('/lessons')}>
-                            <FiGlobe className="w-4 h-4" /> Explore Lessons
+                            <FiGlobe className="w-4 h-4" /> Explore 
                         </Link>
+
 
                         {/* Protected Client Routes */}
                         {isLoggedIn && (
@@ -117,10 +118,10 @@ const Navbar = ({ session, userPlan = "Free" }) => {
                         ) : (
                             /* Logged Out CTAs */
                             <div className="flex items-center gap-2">
-                                <Link href="/login" className="text-sm font-medium text-slate-300 hover:text-white px-4 py-2 transition-colors">
+                                <Link href="/auth/login" className="text-sm font-medium text-slate-300 hover:text-white px-4 py-2 transition-colors">
                                     Sign In
                                 </Link>
-                                <Link href="/signup" className="text-sm font-semibold bg-gradient-to-r from-violet-500 via-indigo-500 to-purple-600 hover:opacity-95 text-white px-5 py-2 rounded-full transition-all shadow-md shadow-indigo-500/10 hover:shadow-indigo-500/20">
+                                <Link href="/auth/register" className="text-sm font-semibold bg-gradient-to-r from-violet-500 via-indigo-500 to-purple-600 hover:opacity-95 text-white px-5 py-2 rounded-full transition-all shadow-md shadow-indigo-500/10 hover:shadow-indigo-500/20">
                                     Get Started
                                 </Link>
                             </div>
@@ -175,8 +176,8 @@ const Navbar = ({ session, userPlan = "Free" }) => {
                             </div>
                         ) : (
                             <div className="grid grid-cols-2 gap-2 px-2 pt-1">
-                                <Link href="/login" className="text-center py-2 text-sm font-medium text-slate-300 border border-slate-800 rounded-full hover:bg-white/5" onClick={() => setIsOpen(false)}>Sign In</Link>
-                                <Link href="/signup" className="text-center py-2 text-sm font-semibold bg-gradient-to-r from-violet-500 to-indigo-600 text-white rounded-full" onClick={() => setIsOpen(false)}>Get Started</Link>
+                                <Link href="/auth/login" className="text-center py-2 text-sm font-medium text-slate-300 border border-slate-800 rounded-full hover:bg-white/5" onClick={() => setIsOpen(false)}>Sign In</Link>
+                                <Link href="/auth/register" className="text-center py-2 text-sm font-semibold bg-gradient-to-r from-violet-500 to-indigo-600 text-white rounded-full" onClick={() => setIsOpen(false)}>Get Started</Link>
                             </div>
                         )}
                     </div>
