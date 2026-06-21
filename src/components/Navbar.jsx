@@ -48,8 +48,8 @@ const Navbar = () => {
         }`;
 
     return (
-        <header className="w-full sticky top-0 z-50 p-4">
-            <div className="max-w-7xl mx-auto bg-slate-900/75 backdrop-blur-xl border border-slate-800/60 rounded-2xl shadow-2xl">
+        <header className="w-full sticky top-0 z-50 ">
+            <div className="max-w-7xl mx-auto bg-slate-900/75 backdrop-blur-xl border border-slate-800/60  shadow-2xl">
                 <div className="flex items-center justify-between h-16 px-4 sm:px-6">
                     
                     {/* 1. BRAND LOGO */}
