@@ -12,11 +12,7 @@ const Navbar = () => {
     const [isOpen, setIsOpen] = useState(false);
     const [isDropdownOpen, setIsDropdownOpen] = useState(false);
     const pathname = usePathname();
-    const upgardeUser= async()=>{
-        const res= await fetch('/api/checkout_sessions');
-        const data= await res.json();
-        return data;
-    }
+  
     
     // useSession কল করা হলো
     const { data: session } = authClient.useSession(); 
@@ -32,7 +28,9 @@ const Navbar = () => {
     
     const isLoggedIn = !!session; 
     const user = session?.user;
-    const userPlan = "Free";
+
+    // ⚡ ডাইনামিক প্ল্যান চেকিং (হার্ডকোডেড "Free" বাদ দেওয়া হয়েছে)
+    const isPremiumUser = user?.plan === "premium" || user?.isPremium;
 
     const isActive = (path) => pathname === path;
 
@@ -76,7 +74,6 @@ const Navbar = () => {
                             <FiGlobe className="w-4 h-4" /> Explore 
                         </Link>
 
-                        {/* কন্ডিশন থেকে isPending বাদ দেওয়া হয়েছে, ফলে সেশন গায়েব হবে না */}
                         {isLoggedIn && (
                             <>
                                 <Link href="/dashboard/add-lesson" className={getLinkClass('/dashboard/add-lesson')}>
@@ -92,9 +89,8 @@ const Navbar = () => {
                     {/* 3. RIGHT CONTROLS */}
                     <div className="hidden md:flex items-center gap-4 min-w-[150px] justify-end">
                         
-                        {/* Upgrade Button */}
-                        {isLoggedIn && userPlan === "Free" && (
-                            
+                        {/* ⚡ Upgrade Button: ইউজার যদি ফ্রি মেম্বার হয় তবেই দেখাবে */}
+                        {isLoggedIn && !isPremiumUser && (
                             <Link
                                 href="/pricing"
                                 className="flex items-center gap-1.5 px-3.5 py-1.5 border border-amber-500/30 bg-amber-500/10 hover:bg-amber-500/20 text-amber-300 text-xs font-semibold rounded-full uppercase tracking-wider transition-all duration-300 shadow-sm"
@@ -103,8 +99,14 @@ const Navbar = () => {
                             </Link>
                         )}
 
+                        {/* 👑 Premium Badge: ইউজার প্রিমিয়াম হলে এখানে মেম্বারশিপ স্ট্যাটাস দেখাবে */}
+                        {isLoggedIn && isPremiumUser && (
+                            <span className="bg-gradient-to-r from-amber-400 to-orange-500 text-black text-[10px] font-black px-3 py-1 rounded-full uppercase tracking-widest shadow-lg shadow-amber-500/20">
+                                ⭐ Premium
+                            </span>
+                        )}
+
                         {isLoggedIn ? (
-                            /* Logged In User Menu - প্রোফাইল সেকশন আর লোডিং দেখাবে না */
                             <div className="relative">
                                 <button
                                     onClick={() => setIsDropdownOpen(!isDropdownOpen)}
@@ -121,8 +123,11 @@ const Navbar = () => {
                                     <>
                                         <div className="fixed inset-0 z-10" onClick={() => setIsDropdownOpen(false)} />
                                         <div className="absolute right-0 mt-2.5 w-56 rounded-xl bg-slate-900 border border-slate-800/80 shadow-2xl p-1.5 z-20">
-                                            <div className="px-3 py-2.5 border-b border-slate-800/60 mb-1.5">
-                                                <p className="text-xs text-slate-500 font-medium">Logged in profile</p>
+                                            <div className="px-3 py-2.5 border-b border-slate-800/60 mb-1.5 flex flex-col gap-1">
+                                                <div className="flex items-center justify-between">
+                                                    <p className="text-xs text-slate-500 font-medium">Logged in profile</p>
+                                                    {isPremiumUser && <span className="text-[9px] text-amber-400 font-bold bg-amber-500/10 px-1.5 py-0.5 rounded">PRO</span>}
+                                                </div>
                                                 <p className="text-sm font-semibold truncate text-slate-200">{user?.email}</p>
                                             </div>
                                             <Link href="/profile" className="flex items-center gap-2.5 px-3 py-2 text-sm text-slate-300 hover:bg-white/5 rounded-lg transition-colors" onClick={() => setIsDropdownOpen(false)}>
@@ -140,7 +145,6 @@ const Navbar = () => {
                                 )}
                             </div>
                         ) : (
-                            /* Logged Out CTAs */
                             <div className="flex items-center gap-2">
                                 <Link href="/auth/login" className="text-sm font-medium text-slate-300 hover:text-white px-4 py-2 transition-colors">
                                     Sign In
@@ -178,7 +182,8 @@ const Navbar = () => {
                         </>
                     )}
 
-                    {isLoggedIn && userPlan === "Free" && (
+                    {/* ⚡ Mobile-এ Upgrade বাটন তখনই দেখাবে যখন ইউজার প্রিমিয়াম না */}
+                    {isLoggedIn && !isPremiumUser && (
                         <Link href="/pricing" className="flex items-center gap-2 px-4 py-2.5 text-amber-400 font-medium text-sm rounded-xl bg-amber-500/10" onClick={() => setIsOpen(false)}>
                             <FiAward /> Upgrade Plan
                         </Link>
@@ -188,9 +193,14 @@ const Navbar = () => {
                         {isLoggedIn ? (
                             <div className="space-y-1">
                                 <div className="px-4 py-2 flex items-center gap-3">
-                                    <div className="w-9 h-9 rounded-full bg-indigo-600 flex items-center justify-center font-bold text-sm text-white">{user?.name?.charAt(0) || "U"}</div>
+                                    <div className="w-9 h-9 rounded-full bg-indigo-600 flex items-center justify-center font-bold text-sm text-white">
+                                        {user?.image ? <img src={user.image} alt="User Avatar" className="object-cover w-full h-full rounded-full" /> : user?.name?.charAt(0) || "U"}
+                                    </div>
                                     <div>
-                                        <p className="text-sm font-semibold text-white">{user?.name || "User"}</p>
+                                        <div className="flex items-center gap-2">
+                                            <p className="text-sm font-semibold text-white">{user?.name || "User"}</p>
+                                            {isPremiumUser && <span className="bg-amber-500 text-black text-[8px] font-black px-1.5 py-0.5 rounded">PREMIUM</span>}
+                                        </div>
                                         <p className="text-xs text-slate-500 truncate max-w-[180px]">{user?.email}</p>
                                     </div>
                                 </div>

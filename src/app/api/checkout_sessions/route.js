@@ -1,6 +1,5 @@
 import { NextResponse } from 'next/server'
 import { headers } from 'next/headers'
-
 import { stripe } from '../../../lib/stripe'
 
 export async function POST(req) {
@@ -23,7 +22,7 @@ export async function POST(req) {
 
     // Create Checkout Sessions from body params.
    const session = await stripe.checkout.sessions.create({
-  customer_email: email, 
+    customer_email: email, 
   line_items: [
     {
       // আপনার default_price আইডিটি এখানে বসানো হলো
@@ -34,9 +33,12 @@ export async function POST(req) {
   mode: 'subscription', // এককালীন পেমেন্টের জন্য
   metadata: {
     userId: userId, 
+    userEmail:email,
+    userPlan:"pro"
   },
   success_url: `${origin}/success?session_id={CHECKOUT_SESSION_ID}`,
   cancel_url: `${origin}/cancel?session_id={CHECKOUT_SESSION_ID}`,
+ 
 });
     console.log(session);
     return NextResponse.json({url:session.url})

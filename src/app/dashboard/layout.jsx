@@ -43,8 +43,9 @@ const DashBoardLayout = ({ children }) => {
         );
     }
 
+    const isPremiumUser = user?.plan === "premium" || user?.isPremium;
+
     return (
-        // এখানে h-screen এবং overflow-hidden নিশ্চিত করে যে পুরো পেজ স্ক্রোল হবে না, শুধু কনটেন্ট স্ক্রোল হবে
         <div className="h-screen w-screen bg-slate-950 flex flex-col md:flex-row overflow-hidden antialiased font-sans text-slate-200">
             
             {/* --- MOBILE TOP BAR --- */}
@@ -75,7 +76,7 @@ const DashBoardLayout = ({ children }) => {
                 />
             )}
 
-            {/* --- SIDEBAR NAVIGATION (STATIC / FIXED-HEIGHT) --- */}
+            {/* --- SIDEBAR NAVIGATION --- */}
             <aside className={`
                 fixed inset-y-0 left-0 z-40 w-64 bg-slate-900 border-r border-slate-800/60 p-5 flex flex-col justify-between
                 transform transition-transform duration-300 ease-in-out md:translate-x-0 md:static md:h-full flex-shrink-0
@@ -130,15 +131,17 @@ const DashBoardLayout = ({ children }) => {
                     {/* User Mini Card */}
                     <div className="flex items-center gap-3 bg-slate-950/40 p-3 rounded-xl border border-slate-800/40">
                         <img 
-                            src={user?.photoURL || "https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?w=100"} 
+                            src={user?.image || user?.photoURL || "https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?w=100"} 
                             alt={user?.name || "User Avatar"} 
                             referrerPolicy='no-referrer'
+                            width={40} // 🟢 উইডথ ডিফাইন করে দেওয়া হলো লেআউট শিফট এড়াতে
+                            height={40} // 🟢 হাইট ডিফাইন করে দেওয়া হলো
                             className="w-10 h-10 rounded-xl object-cover ring-2 ring-slate-800"
                         />
                         <div className="flex-1 min-w-0">
                             <p className="text-sm font-semibold text-slate-200 truncate">{user?.name || "Anonymous"}</p>
-                            {user?.plan === "premium" || user?.isPremium ? (
-                                <span className="inline-flex items-center text-[9px] bg-amber-500/10 text-amber-400 px-2 py-0.5 rounded-md font-bold mt-0.5 border border-amber-500/20">
+                            {isPremiumUser ? (
+                                <span className="inline-flex items-center text-[9px] bg-amber-500/10 text-amber-400 px-2 py-0.5 rounded-md font-bold mt-0.5 border border-amber-500/20 shadow-sm animate-pulse">
                                     Premium ⭐
                                 </span>
                             ) : (
@@ -161,8 +164,7 @@ const DashBoardLayout = ({ children }) => {
             </aside>
 
             {/* --- SCROLLABLE MAIN CONTENT AREA --- */}
-            {/* এখানে h-full এবং overflow-y-auto দেওয়ার কারণে ড্যাশবোর্ডের শুধু এই অংশটুকুই স্ক্রোল হবে */}
-            <div className="flex-1 h-full overflow-y-auto bg-slate-950 custom-scrollbar">
+            <div className="flex-1 min-h-0 h-full overflow-y-auto bg-slate-950 custom-scrollbar">
                 <main className="p-5 sm:p-8 md:p-10 max-w-7xl w-full mx-auto">
                     {children}
                 </main>
