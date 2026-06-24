@@ -12,6 +12,11 @@ const Navbar = () => {
     const [isOpen, setIsOpen] = useState(false);
     const [isDropdownOpen, setIsDropdownOpen] = useState(false);
     const pathname = usePathname();
+    const upgardeUser= async()=>{
+        const res= await fetch('/api/checkout_sessions');
+        const data= await res.json();
+        return data;
+    }
     
     // useSession কল করা হলো
     const { data: session } = authClient.useSession(); 
@@ -89,6 +94,7 @@ const Navbar = () => {
                         
                         {/* Upgrade Button */}
                         {isLoggedIn && userPlan === "Free" && (
+                            
                             <Link
                                 href="/pricing"
                                 className="flex items-center gap-1.5 px-3.5 py-1.5 border border-amber-500/30 bg-amber-500/10 hover:bg-amber-500/20 text-amber-300 text-xs font-semibold rounded-full uppercase tracking-wider transition-all duration-300 shadow-sm"
