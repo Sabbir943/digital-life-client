@@ -8,6 +8,8 @@ import { FcGoogle } from 'react-icons/fc';
 import { authClient } from '@/lib/auth-client';
 import { useRouter } from 'next/navigation';
 
+const ADMIN_EMAIL = "admin@gamil.com";
+
 const LoginPage = () => {
     const router = useRouter();
     const [formData, setFormData] = useState({
@@ -37,7 +39,6 @@ const LoginPage = () => {
     const handleSubmit = async (e) => {
         e.preventDefault();
 
-        // Fix 1: Destructure variables safely from state container
         const { email, password } = formData;
 
         if (!email || !password) {
@@ -48,7 +49,6 @@ const LoginPage = () => {
         setIsSubmitting(true);
         const loadToastId = toast.loading("Authenticating credentials...");
 
-        // Fix 2: Wrap the entire operational auth client loop inside the try-catch block
         try {
             const { data, error } = await authClient.signIn.email({
                 email,
@@ -62,7 +62,14 @@ const LoginPage = () => {
 
             if (data) {
                 toast.success("Welcome back to AuraLife!", { id: loadToastId });
-                router.push('/');
+                
+                // 🛡️ 🟢 অ্যাডমিন গেটকিপার রিডাইরেকশন লজিক
+                if (email === ADMIN_EMAIL) {
+                    router.replace('/dashboard/admin'); // সোজা অ্যাডমিন প্যানেলে পাঠাবে
+                } else {
+                    router.replace('/dashboard'); // সাধারণ ইউজারদের রেগুলার ড্যাশবোর্ডে পাঠাবে
+                }
+                
                 router.refresh();
             }
         } catch (err) {

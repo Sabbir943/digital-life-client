@@ -2,13 +2,13 @@
 
 import React, { useState } from 'react';
 import Link from 'next/link';
-import { useRouter } from 'next/navigation'; // Changed from redirect to useRouter
+import { useRouter } from 'next/navigation'; 
 import toast from 'react-hot-toast';
 import { FiCompass, FiUser, FiMail, FiLock, FiImage, FiCheck, FiX } from 'react-icons/fi';
 import { FcGoogle } from 'react-icons/fc';
 import { authClient } from '@/lib/auth-client';
-// Import your authClient (Adjust this path to where your Better Auth client configuration sits)
 
+const ADMIN_EMAIL = "admin@gmail.com";
 
 const SignupPage = () => {
     const router = useRouter();
@@ -48,7 +48,6 @@ const SignupPage = () => {
     const handleSubmit = async (e) => {
         e.preventDefault();
         
-        // Destructure values safely from local component state
         const { name, email, password, photoUrl } = formData;
         
         // Validation check before submitting
@@ -66,26 +65,31 @@ const SignupPage = () => {
         const loadToastId = toast.loading("Creating your account...");
         
         try {
-            // Actual Better Auth Integration execution
+            // Better Auth Integration execution
             const { data, error } = await authClient.signUp.email({
                 email, 
                 password, 
                 name, 
-                image: photoUrl || undefined, // Better-Auth uses 'image' instead of 'photoUrl' natively
+                image: photoUrl || undefined, 
             });
 
             if (error) {
-                // If better-auth returns an error object, handle it gracefully
                 toast.error(error.message || "Registration failed.", { id: loadToastId });
                 return;
             }
 
             if (data) {
                 toast.success("Welcome aboard! Account built successfully.", { id: loadToastId });
-                // Reset form input values
+                
+                // Form Reset
                 setFormData({ name: '', email: '', photoUrl: '', password: '' });
-                // Clean redirect via client router instance
-                router.push('/auth/login'); 
+                
+                // 🛡️ 🟢 ফিক্সড রিডাইরেকশন গেটকিপার লজিক (সফলভাবে রেজিস্ট্রেশনের পর চেক করবে)
+                if (email === ADMIN_EMAIL) {
+                    router.replace('/dashboard/admin'); // ফিক্সড ইমেইল হলে সরাসরি অ্যাডমিন ড্যাশবোর্ড
+                } else {
+                    router.replace('/dashboard'); // অন্য যেকোনো ইউজারের জন্য নরমাল ড্যাশবোর্ড
+                }
             }
         } catch (err) {
             toast.error("An unexpected registration error occurred.", { id: loadToastId });
@@ -97,7 +101,6 @@ const SignupPage = () => {
 
     return (
         <div className="min-h-[90vh] bg-slate-950 text-slate-100 flex items-center justify-center px-4 relative overflow-hidden py-12">
-            
             {/* Ambient Background Effects */}
             <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[500px] h-[500px] bg-indigo-600/10 rounded-full blur-[120px] pointer-events-none" />
             <div className="absolute top-1/3 left-1/4 w-[300px] h-[300px] bg-violet-500/10 rounded-full blur-[100px] pointer-events-none" />

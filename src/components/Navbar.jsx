@@ -3,24 +3,28 @@
 import React, { useState } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-
-import { FiCompass, FiPlus, FiBookOpen, FiGlobe, FiAward, FiLogOut, FiUser, FiMenu, FiX, FiChevronDown, FiHome } from 'react-icons/fi';
+import { 
+    FiCompass, FiPlus, FiBookOpen, FiGlobe, FiAward, 
+    FiLogOut, FiUser, FiMenu, FiX, FiChevronDown, FiHome, FiShield 
+} from 'react-icons/fi';
 import { authClient } from '@/lib/auth-client';
 import toast from 'react-hot-toast';
+
+// 🛡️ আপনার ফিক্সড অ্যাডমিন ইমেইল ক্রেডেনশিয়াল
+const ADMIN_EMAIL = "admin@gmail.com";
 
 const Navbar = () => { 
     const [isOpen, setIsOpen] = useState(false);
     const [isDropdownOpen, setIsDropdownOpen] = useState(false);
     const pathname = usePathname();
   
-    
-    // useSession কল করা হলো
+    // Better Auth সেশন কল
     const { data: session } = authClient.useSession(); 
     
     const handleLogOut = async () => {
         try {
             await authClient.signOut();
-            toast.error("Logout done!!");
+            toast.success("Logout done!!");
         } catch (err) {
             toast.error("Something went wrong!");
         }
@@ -29,12 +33,16 @@ const Navbar = () => {
     const isLoggedIn = !!session; 
     const user = session?.user;
     
-    // ⚡ ডাইনামিক প্ল্যান চেকিং (হার্ডকোডেড "Free" বাদ দেওয়া হয়েছে)
+    // ⚡ অ্যাডমিন এবং প্রিমিয়াম ইউজার ভ্যালিডেশন
+    const isAdmin = user?.email === ADMIN_EMAIL;
     const isPremiumUser = user?.userPlan === "Pro";
+
+    // রোল অনুযায়ী ডাইনামিক ড্যাশবোর্ড রুট নির্ধারণ
+    const dashboardHref = isAdmin ? '/dashboard/admin' : '/dashboard/user';
 
     const isActive = (path) => pathname === path;
 
-    // Desktop Navlink Class - Fixed structure to completely prevent shifting
+    // Desktop Navlink Class
     const getLinkClass = (path) => 
         `flex items-center gap-2 px-4 py-2 rounded-full text-sm font-medium transition-all duration-200 transform-gpu border border-transparent min-w-[90px] justify-center ${
             isActive(path)
@@ -51,8 +59,8 @@ const Navbar = () => {
         }`;
 
     return (
-        <header className="w-full sticky top-0 z-50 ">
-            <div className="max-w-7xl mx-auto bg-slate-900/75 backdrop-blur-xl border border-slate-800/60  shadow-2xl">
+        <header className="w-full sticky top-0 z-50">
+            <div className="max-w-7xl mx-auto bg-slate-900/75 backdrop-blur-xl border border-slate-800/60 shadow-2xl">
                 <div className="flex items-center justify-between h-16 px-4 sm:px-6">
                     
                     {/* 1. BRAND LOGO */}
@@ -65,7 +73,7 @@ const Navbar = () => {
                         </span>
                     </Link>
 
-                    {/* 2. DESKTOP NAVIGATION LINKS */}
+                    {/* 2. DESKTOP NAVIGATION LINKS (CONDITIONAL BY ROLE) */}
                     <div className="hidden md:flex items-center gap-1.5 min-h-[40px]">
                         <Link href="/" className={getLinkClass('/')}>
                             <FiHome className="w-4 h-4" /> Home
@@ -74,23 +82,42 @@ const Navbar = () => {
                             <FiGlobe className="w-4 h-4" /> Explore 
                         </Link>
 
+                        {/* লগইন থাকা অবস্থায় ইউজার/অ্যাডমিন ভেদে আলাদা লিংক জেনারেট */}
                         {isLoggedIn && (
-                            <>
-                                <Link href="/dashboard/add-lesson" className={getLinkClass('/dashboard/add-lesson')}>
-                                    <FiPlus className="w-4 h-4" /> Add Lesson
-                                </Link>
-                                <Link href="/dashboard/my-lessons" className={getLinkClass('/dashboard/my-lessons')}>
-                                    <FiBookOpen className="w-4 h-4" /> My Lessons
-                                </Link>
-                            </>
+                            isAdmin ? (
+                                <>
+                                    <Link href="/dashboard/admin/manage-users" className={getLinkClass('/dashboard/admin/manage-users')}>
+                                        <FiUser className="w-4 h-4" /> Users
+                                    </Link>
+                                    <Link href="/dashboard/admin/manage-lessons" className={getLinkClass('/dashboard/admin/manage-lessons')}>
+                                        <FiBookOpen className="w-4 h-4" /> Lessons
+                                    </Link>
+                                </>
+                            ) : (
+                                <>
+                                    <Link href="/dashboard/user/add-lesson" className={getLinkClass('/dashboard/add-lesson')}>
+                                        <FiPlus className="w-4 h-4" /> Add Lesson
+                                    </Link>
+                                    <Link href="/dashboard/user/my-lessons" className={getLinkClass('/dashboard/my-lessons')}>
+                                        <FiBookOpen className="w-4 h-4" /> My Lessons
+                                    </Link>
+                                </>
+                            )
                         )}
                     </div>
 
                     {/* 3. RIGHT CONTROLS */}
                     <div className="hidden md:flex items-center gap-4 min-w-[150px] justify-end">
                         
-                        {/* ⚡ Upgrade Button: ইউজার যদি ফ্রি মেম্বার হয় তবেই দেখাবে */}
-                        {isLoggedIn && !isPremiumUser && (
+                        {/* 🛡️ Admin Badge */}
+                        {isLoggedIn && isAdmin && (
+                            <span className="bg-gradient-to-r from-rose-500 to-red-600 text-white text-[10px] font-black px-3 py-1 rounded-full uppercase tracking-widest shadow-lg shadow-rose-500/20 animate-pulse flex items-center gap-1">
+                                <FiShield className="w-3 h-3" /> Admin
+                            </span>
+                        )}
+
+                        {/* ⚡ Upgrade Button (ফ্রি ইউজার এবং অ্যাডমিন না হলে দেখাবে) */}
+                        {isLoggedIn && !isPremiumUser && !isAdmin && (
                             <Link
                                 href="/pricing"
                                 className="flex items-center gap-1.5 px-3.5 py-1.5 border border-amber-500/30 bg-amber-500/10 hover:bg-amber-500/20 text-amber-300 text-xs font-semibold rounded-full uppercase tracking-wider transition-all duration-300 shadow-sm"
@@ -99,8 +126,8 @@ const Navbar = () => {
                             </Link>
                         )}
 
-                        {/* 👑 Premium Badge: ইউজার প্রিমিয়াম হলে এখানে মেম্বারশিপ স্ট্যাটাস দেখাবে */}
-                        {isLoggedIn && isPremiumUser && (
+                        {/* 👑 Premium Badge */}
+                        {isLoggedIn && isPremiumUser && !isAdmin && (
                             <span className="bg-gradient-to-r from-amber-400 to-orange-500 text-black text-[10px] font-black px-3 py-1 rounded-full uppercase tracking-widest shadow-lg shadow-amber-500/20">
                                 ⭐ Premium
                             </span>
@@ -126,16 +153,25 @@ const Navbar = () => {
                                             <div className="px-3 py-2.5 border-b border-slate-800/60 mb-1.5 flex flex-col gap-1">
                                                 <div className="flex items-center justify-between">
                                                     <p className="text-xs text-slate-500 font-medium">Logged in profile</p>
-                                                    {isPremiumUser && <span className="text-[9px] text-amber-400 font-bold bg-amber-500/10 px-1.5 py-0.5 rounded">PRO</span>}
+                                                    {isAdmin ? (
+                                                        <span className="text-[9px] text-rose-400 font-bold bg-rose-500/10 px-1.5 py-0.5 rounded">ADMIN</span>
+                                                    ) : isPremiumUser && (
+                                                        <span className="text-[9px] text-amber-400 font-bold bg-amber-500/10 px-1.5 py-0.5 rounded">PRO</span>
+                                                    )}
                                                 </div>
                                                 <p className="text-sm font-semibold truncate text-slate-200">{user?.email}</p>
                                             </div>
-                                            <Link href="/profile" className="flex items-center gap-2.5 px-3 py-2 text-sm text-slate-300 hover:bg-white/5 rounded-lg transition-colors" onClick={() => setIsDropdownOpen(false)}>
+                                            
+                                            {/* ডাইনামিক প্রোফাইল লিংক */}
+                                            <Link href={isAdmin ? "/dashboard/admin/profile" : "/dashboard/user/profile"} className="flex items-center gap-2.5 px-3 py-2 text-sm text-slate-300 hover:bg-white/5 rounded-lg transition-colors" onClick={() => setIsDropdownOpen(false)}>
                                                 <FiUser className="text-slate-400" /> Profile
                                             </Link>
-                                            <Link href="/dashboard" className="flex items-center gap-2.5 px-3 py-2 text-sm text-slate-300 hover:bg-white/5 rounded-lg transition-colors" onClick={() => setIsDropdownOpen(false)}>
+                                            
+                                            {/* ডাইনামিক ড্যাশবোর্ড রুট লিংক */}
+                                            <Link href={dashboardHref} className="flex items-center gap-2.5 px-3 py-2 text-sm text-slate-300 hover:bg-white/5 rounded-lg transition-colors" onClick={() => setIsDropdownOpen(false)}>
                                                 <FiBookOpen className="text-slate-400" /> Dashboard
                                             </Link>
+                                            
                                             <div className="h-px bg-slate-800/60 my-1.5" />
                                             <button onClick={handleLogOut} className="w-full flex items-center gap-2.5 px-3 py-2 text-sm text-rose-400 hover:bg-rose-500/10 rounded-lg transition-colors text-left font-medium">
                                                 <FiLogOut /> Log out
@@ -176,14 +212,21 @@ const Navbar = () => {
                     <Link href="/lessions" className={getMobileLinkClass('/lessions')} onClick={() => setIsOpen(false)}>Public Lessons</Link>
                     
                     {isLoggedIn && (
-                        <>
-                            <Link href="/dashboard/add-lesson" className={getMobileLinkClass('/dashboard/add-lesson')} onClick={() => setIsOpen(false)}>Add Lesson</Link>
-                            <Link href="/dashboard/my-lessons" className={getMobileLinkClass('/dashboard/my-lessons')} onClick={() => setIsOpen(false)}>My Lessons</Link>
-                        </>
+                        isAdmin ? (
+                            <>
+                                <Link href="/dashboard/admin/manage-users" className={getMobileLinkClass('/dashboard/admin/manage-users')} onClick={() => setIsOpen(false)}>Manage Users</Link>
+                                <Link href="/dashboard/admin/manage-lessons" className={getMobileLinkClass('/dashboard/admin/manage-lessons')} onClick={() => setIsOpen(false)}>Manage Lessons</Link>
+                            </>
+                        ) : (
+                            <>
+                                <Link href="/dashboard/user/add-lesson" className={getMobileLinkClass('/dashboard/add-lesson')} onClick={() => setIsOpen(false)}>Add Lesson</Link>
+                                <Link href="/dashboard/user/my-lessons" className={getMobileLinkClass('/dashboard/my-lessons')} onClick={() => setIsOpen(false)}>My Lessons</Link>
+                            </>
+                        )
                     )}
 
-                    {/* ⚡ Mobile-এ Upgrade বাটন তখনই দেখাবে যখন ইউজার প্রিমিয়াম না */}
-                    {isLoggedIn && !isPremiumUser && (
+                    {/* Mobile Upgrade Link */}
+                    {isLoggedIn && !isPremiumUser && !isAdmin && (
                         <Link href="/pricing" className="flex items-center gap-2 px-4 py-2.5 text-amber-400 font-medium text-sm rounded-xl bg-amber-500/10" onClick={() => setIsOpen(false)}>
                             <FiAward /> Upgrade Plan
                         </Link>
@@ -199,13 +242,17 @@ const Navbar = () => {
                                     <div>
                                         <div className="flex items-center gap-2">
                                             <p className="text-sm font-semibold text-white">{user?.name || "User"}</p>
-                                            {isPremiumUser && <span className="bg-amber-500 text-black text-[8px] font-black px-1.5 py-0.5 rounded">PREMIUM</span>}
+                                            {isAdmin ? (
+                                                <span className="bg-rose-500 text-white text-[8px] font-black px-1.5 py-0.5 rounded">ADMIN</span>
+                                            ) : isPremiumUser && (
+                                                <span className="bg-amber-500 text-black text-[8px] font-black px-1.5 py-0.5 rounded">PREMIUM</span>
+                                            )}
                                         </div>
                                         <p className="text-xs text-slate-500 truncate max-w-[180px]">{user?.email}</p>
                                     </div>
                                 </div>
-                                <Link href="/profile" className="block px-4 py-2 text-sm text-slate-400 hover:text-white" onClick={() => setIsOpen(false)}>Profile</Link>
-                                <Link href="/dashboard" className="block px-4 py-2 text-sm text-slate-400 hover:text-white" onClick={() => setIsOpen(false)}>Dashboard</Link>
+                                <Link href={isAdmin ? "/dashboard/admin/profile" : "/profile"} className="block px-4 py-2 text-sm text-slate-400 hover:text-white" onClick={() => setIsOpen(false)}>Profile</Link>
+                                <Link href={dashboardHref} className="block px-4 py-2 text-sm text-slate-400 hover:text-white" onClick={() => setIsOpen(false)}>Dashboard</Link>
                                 <button onClick={handleLogOut} className="w-full text-left block px-4 py-2 text-sm text-rose-400 font-medium">Log out</button>
                             </div>
                         ) : (
