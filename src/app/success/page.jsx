@@ -22,12 +22,12 @@ export default async function SuccessPage({ searchParams }) {
                     headers: {
                         'Content-Type': "application/json"
                     },
-                    cache: 'no-store', // 🟢 ফিক্সড: Next.js ক্যাশিং বন্ধ করার জন্য এটি অত্যন্ত জরুরি
+                    cache: 'no-store', 
                     body: JSON.stringify({
                         sessionId: sessionId,
                         userId: metadata.userId,
                         userEmail: metadata.userEmail || "",
-                        userPlan: "Pro" // ব্যাকঅ্যান্ডের সাথে মিল রেখে "Pro" করা হলো
+                         
                     })
                 });
             }

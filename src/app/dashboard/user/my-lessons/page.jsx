@@ -7,7 +7,7 @@ import Swal from 'sweetalert2';
 const MyLessons = () => {
     const { data: session, isPending: authPending } = authClient.useSession();
     const user = session?.user;
-    const isPremiumUser = user?.plan === "premium" || user?.isPremium || false;
+    const isPremiumUser = user?.userPlan === "Pro" || user?.isPremium || false;
 
     const [lessons, setLessons] = useState([]);
     const [loading, setLoading] = useState(true);

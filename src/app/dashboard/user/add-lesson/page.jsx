@@ -8,7 +8,7 @@ const AddLesson = () => {
     const { data: session } = authClient.useSession();
     const user = session?.user;
     
-    const isPremiumUser = user?.plan === "premium" || user?.isPremium || false;
+    const isPremiumUser = user?.userPlan === "Pro" || user?.isPremium || false;
 
     const [loading, setLoading] = useState(false);
     const [formData, setFormData] = useState({
