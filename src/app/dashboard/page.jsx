@@ -10,18 +10,8 @@ const DashboardHome = () => {
 
     const [stats, setStats] = useState({ created: 0, saved: 0 });
     const [recentLessons, setRecentLessons] = useState([]);
+    const [weeklyAnalytics, setWeeklyAnalytics] = useState([]); // 🟢 এখন এটি পুরোপুরি ডাইনামিক স্টেট
     const [loadingData, setLoadingData] = useState(true);
-
-    // চার্টের জন্য মক ডাটা (ইউজারের সাপ্তাহিক কন্ট্রিবিউশন রিফ্লেকশন)
-    const weeklyAnalytics = [
-        { day: 'Sat', count: 2, height: 'h-12' },
-        { day: 'Sun', count: 5, height: 'h-28' },
-        { day: 'Mon', count: 3, height: 'h-16' },
-        { day: 'Tue', count: 8, height: 'h-40' },
-        { day: 'Wed', count: 4, height: 'h-20' },
-        { day: 'Thu', count: 6, height: 'h-32' },
-        { day: 'Fri', count: 1, height: 'h-6' },
-    ];
 
     useEffect(() => {
         if (user) {
@@ -29,12 +19,61 @@ const DashboardHome = () => {
         }
     }, [user]);
 
+    // 🟢 বিগত ৭ দিনের কন্ট্রিবিউশন ক্যালকুলেট করার হেল্পার ফাংশন
+    const generateWeeklyAnalytics = (allLessons) => {
+        const daysOfWeek = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+        const analyticsMap = {};
+
+        // গত ৭ দিনের ডেট অবজেক্ট তৈরি এবং ম্যাপ ইনিশিয়ালাইজ করা
+        for (let i = 6; i >= 0; i--) {
+            const d = new Date();
+            d.setDate(d.getDate() - i);
+            const dayName = daysOfWeek[d.getDay()];
+            const dateString = d.toDateString(); // ইউনিক কি (Key) হিসেবে ব্যবহারের জন্য
+            
+            analyticsMap[dateString] = {
+                day: dayName,
+                count: 0,
+                dateObj: d
+            };
+        }
+
+        // ইউজারের লেসনগুলো লুপ চালিয়ে সঠিক দিনের সাথে ম্যাচ করা
+        allLessons.forEach(lesson => {
+            if (!lesson.createdAt) return;
+            const lessonDateStr = new Date(lesson.createdAt).toDateString();
+            
+            if (analyticsMap[lessonDateStr]) {
+                analyticsMap[lessonDateStr].count += 1;
+            }
+        });
+
+        // অবজেক্ট ম্যাপকে অ্যারেতে রূপান্তর এবং Tailwind হাইট ডাইনামিকালি সেট করা
+        const formattedData = Object.values(analyticsMap).map(item => {
+            let heightClass = 'h-2'; // ডিফল্ট (০টি লেসন থাকলে ছোট একটি ডট/বার দেখাবে)
+            
+            // কাউন্টের ওপর ভিত্তি করে গ্রাফ বারের হাইট নির্ধারণ (Tailwind Arbitrary values)
+            if (item.count > 0 && item.count <= 2) heightClass = 'h-12';
+            else if (item.count > 2 && item.count <= 4) heightClass = 'h-24';
+            else if (item.count > 4 && item.count <= 7) heightClass = 'h-36';
+            else if (item.count > 7) heightClass = 'h-44';
+
+            return {
+                day: item.day,
+                count: item.count,
+                height: heightClass
+            };
+        });
+
+        setWeeklyAnalytics(formattedData);
+    };
+
     const fetchDashboardOverviewData = async () => {
         if (!user?.email) return;
         try {
             setLoadingData(true);
             
-            // ১. ইউজারের তৈরি করা লেসন ফেচ করা
+            // ১. ইউজারের তৈরি করা সব লেসন ফেচ করা
             const lessonsRes = await fetch(`http://localhost:8000/api/lessons?email=${user.email}`);
             const lessonsData = await lessonsRes.json();
             
@@ -42,10 +81,13 @@ const DashboardHome = () => {
                 setStats(prev => ({ ...prev, created: lessonsData.length }));
                 
                 // রিসেন্ট ৩টি লেসন ফিল্টার ও সর্ট করা (Newest First)
-                const sortedRecent = lessonsData
+                const sortedRecent = [...lessonsData]
                     .sort((a, b) => new Date(b.createdAt || 0) - new Date(a.createdAt || 0))
                     .slice(0, 3);
                 setRecentLessons(sortedRecent);
+
+                // 🟢 ডাইনামিক চার্ট ডাটা জেনারেট করার ফাংশন কল
+                generateWeeklyAnalytics(lessonsData);
             }
 
             // ২. ইউজারের সেভ করা ফেভারিট লেসন ফেচ করা
@@ -91,7 +133,6 @@ const DashboardHome = () => {
                 
                 {/* বাম পাশের মেট্রিক্স কার্ডস */}
                 <div className="lg:col-span-1 flex flex-col gap-4 justify-between">
-                    {/* কার্ড ১: মোট তৈরি করা লেসন */}
                     <div className="bg-slate-950/60 border border-slate-800/80 rounded-2xl p-5 flex items-center justify-between backdrop-blur-md shadow-lg group hover:border-indigo-500/30 transition-all">
                         <div>
                             <span className="text-[10px] font-bold uppercase tracking-wider text-slate-500 block">Total Lessons Created</span>
@@ -102,7 +143,6 @@ const DashboardHome = () => {
                         </div>
                     </div>
 
-                    {/* কার্ড ২: মোট সেভ করা লেসন */}
                     <div className="bg-slate-950/60 border border-slate-800/80 rounded-2xl p-5 flex items-center justify-between backdrop-blur-md shadow-lg group hover:border-rose-500/30 transition-all">
                         <div>
                             <span className="text-[10px] font-bold uppercase tracking-wider text-slate-500 block">Saved Favorites</span>
@@ -113,7 +153,6 @@ const DashboardHome = () => {
                         </div>
                     </div>
 
-                    {/* কার্ড ৩: মেম্বারশিপ প্ল্যান */}
                     <div className="bg-slate-950/60 border border-slate-800/80 rounded-2xl p-5 flex items-center justify-between backdrop-blur-md shadow-lg">
                         <div>
                             <span className="text-[10px] font-bold uppercase tracking-wider text-slate-500 block">Account Status</span>
@@ -125,22 +164,17 @@ const DashboardHome = () => {
                                 )}
                             </h3>
                         </div>
-                        {user?.userPlan !== "Pro" && (
-                            <Link href="/dashboard/billing" className="text-[11px] font-bold px-3 py-1.5 bg-amber-500 hover:bg-amber-400 text-black rounded-lg transition-all">
-                                Upgrade
-                            </Link>
-                        )}
                     </div>
                 </div>
 
-                {/* ডান পাশের এনালিটিক্স চার্ট উইজেট */}
+                {/* ডান পাশের এনালিটিক্স চার্ট উইজেট (এখন ১০০% ডাইনামিক) */}
                 <div className="lg:col-span-2 bg-slate-950/60 border border-slate-800/80 rounded-2xl p-5 flex flex-col backdrop-blur-md shadow-lg justify-between">
                     <div className="flex items-center justify-between mb-4">
                         <div>
                             <h3 className="text-sm font-bold text-slate-200">Weekly Reflections Chart</h3>
-                            <p className="text-[11px] text-slate-500">আপনার এই সপ্তাহের দৈনিক লেসন প্রকাশের রেশিও।</p>
+                            <p className="text-[11px] text-slate-500">গত ৭ দিনের রিয়েল-টাইম কন্ট্রিবিউশন বার গ্রাফ।</p>
                         </div>
-                        <span className="text-[10px] font-bold text-indigo-400 bg-indigo-500/10 px-2 py-0.5 rounded-md border border-indigo-500/20">Active</span>
+                        <span className="text-[10px] font-bold text-indigo-400 bg-indigo-500/10 px-2 py-0.5 rounded-md border border-indigo-500/20">Live Sync</span>
                     </div>
 
                     {/* পিওর Tailwind বার চার্ট */}
@@ -148,7 +182,7 @@ const DashboardHome = () => {
                         {weeklyAnalytics.map((item, index) => (
                             <div key={index} className="flex flex-col items-center flex-1 group">
                                 <div className="text-[10px] font-bold text-indigo-400 mb-2 opacity-0 group-hover:opacity-100 transition-opacity">
-                                    {item.count}
+                                    {item.count} lessons
                                 </div>
                                 <div className={`w-full max-w-[24px] ${item.height} bg-gradient-to-t from-indigo-600 to-indigo-400 group-hover:from-indigo-500 group-hover:to-violet-400 rounded-t-md transition-all duration-500 relative shadow-lg shadow-indigo-500/10`}></div>
                                 <span className="text-[10px] text-slate-500 font-medium mt-2 block">{item.day}</span>
@@ -162,7 +196,7 @@ const DashboardHome = () => {
             {/* কুইক শর্টকাট এবং রিসেন্ট লেসন সেকশন গ্রিড */}
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
                 
-                {/* রিসেন্টলি অ্যাডেড লেসন লিস্ট (বাম পাশে ২ কলাম) */}
+                {/* রিসেন্টলি অ্যাডেড লেসন লিস্ট */}
                 <div className="lg:col-span-2 space-y-4">
                     <h3 className="text-md font-bold text-slate-200 flex items-center gap-2">
                         ⏱️ Recently Added Insights
@@ -195,7 +229,7 @@ const DashboardHome = () => {
                     )}
                 </div>
 
-                {/* কুইক শর্টকাট অ্যাকশন প্যানেল (ডান পাশে ১ কলাম) */}
+                {/* কুইক শর্টকাট অ্যাকশন প্যানেল */}
                 <div className="lg:col-span-1 space-y-4">
                     <h3 className="text-md font-bold text-slate-200">
                         ⚡ Quick Actions
