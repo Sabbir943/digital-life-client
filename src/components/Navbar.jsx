@@ -28,8 +28,7 @@ const Navbar = () => {
     
     const isLoggedIn = !!session; 
     const user = session?.user;
-    console.log(user);
-
+    
     // ⚡ ডাইনামিক প্ল্যান চেকিং (হার্ডকোডেড "Free" বাদ দেওয়া হয়েছে)
     const isPremiumUser = user?.userPlan === "Pro";
 

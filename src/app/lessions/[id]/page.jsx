@@ -11,7 +11,7 @@ const LessonDetailsPage = ({ params }) => {
     
     const { data: session } = authClient.useSession();
     const user = session?.user;
-    const isPremiumUser = user?.plan === "premium" || user?.isPremium || false;
+    const isPremiumUser = user?.userPlan === "Pro" || user?.isPremium || false;
 
     const [lesson, setLesson] = useState(null);
     const [comments, setComments] = useState([]);
@@ -22,6 +22,7 @@ const LessonDetailsPage = ({ params }) => {
     const [likesArray, setLikesArray] = useState([]);
     const [likesCount, setLikesCount] = useState(0);
     const [isSaved, setIsSaved] = useState(false);
+    const [favoritesCount, setFavoritesCount] = useState(0);
 
     useEffect(() => {
         const fetchDetails = async () => {
@@ -31,6 +32,7 @@ const LessonDetailsPage = ({ params }) => {
                 setLesson(data);
                 setLikesArray(data.likes || []);
                 setLikesCount(data.likesCount || 0);
+                setFavoritesCount(data.favoritesCount || 0);
                 
                 // কমেন্ট লোড করা
                 const commentRes = await fetch(`http://localhost:8000/api/lessons/${lessonId}/comments`);
@@ -45,7 +47,7 @@ const LessonDetailsPage = ({ params }) => {
         fetchDetails();
     }, [lessonId]);
 
-    // ❤️ লাইক বাটন লজিক (Real-time update, No Refresh)
+    // ❤️ লাইক বাটন লজিক
     const handleLikeToggle = async () => {
         if (!user) {
             Swal.fire({ icon: 'warning', title: 'Login Required', text: 'Please log in to like this lesson!', background: '#090d16', color: '#fff' });
@@ -55,7 +57,6 @@ const LessonDetailsPage = ({ params }) => {
         const userEmail = user.email;
         const isAlreadyLiked = likesArray.includes(userEmail);
         
-        // Optimistic State Update
         const updatedLikes = isAlreadyLiked ? likesArray.filter(e => e !== userEmail) : [...likesArray, userEmail];
         setLikesArray(updatedLikes);
         setLikesCount(prev => isAlreadyLiked ? prev - 1 : prev + 1);
@@ -75,12 +76,13 @@ const LessonDetailsPage = ({ params }) => {
     const handleFavoriteToggle = async () => {
         if (!user) return;
         setIsSaved(!isSaved);
+        setFavoritesCount(prev => !isSaved ? prev + 1 : prev - 1);
         Swal.fire({ icon: 'success', title: !isSaved ? 'Saved to Favorites!' : 'Removed!', toast: true, position: 'top-end', showConfirmButton: false, timer: 1500, background: '#1e293b', color: '#fff' });
         
         await fetch(`http://localhost:8000/api/lessons/${lessonId}/favorite`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ email: user.email, toggle: !isSaved })
+            body: JSON.stringify({ email: user?.email, toggle: !isSaved })
         });
     };
 
@@ -106,7 +108,7 @@ const LessonDetailsPage = ({ params }) => {
             await fetch(`http://localhost:8000/api/reports`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ lessonId, reporterEmail: user.email, reason, timestamp: new Date() })
+                body: JSON.stringify({ lessonId, reporterEmail: user?.email, reason, timestamp: new Date() })
             });
             Swal.fire({ icon: 'success', title: 'Report Submitted', text: 'Thank you. Admin will review this content.', background: '#0f172a', color: '#fff' });
         }
@@ -119,9 +121,9 @@ const LessonDetailsPage = ({ params }) => {
 
         const newCommentObj = {
             lessonId,
-            userName: user.name,
-            userEmail: user.email,
-            userImage: user.image || "https://placehold.co/100",
+            userName: user?.name,
+            userEmail: user?.email,
+            userImage: user?.image || "https://placehold.co/100",
             commentText: newComment,
             createdAt: new Date().toISOString()
         };
@@ -138,6 +140,7 @@ const LessonDetailsPage = ({ params }) => {
 
     if (loading) return <div className="min-h-screen bg-slate-950 flex justify-center items-center"><div className="w-10 h-10 border-4 border-indigo-500 border-t-transparent rounded-full animate-spin"></div></div>;
 
+    {/* 🔒 ফিক্সড লজিক: কার্ড প্রিমিয়াম এবং ইউজার প্রো না হলে লক দেখাবে */}
     const isContentLocked = lesson?.accessLevel === "Premium" && !isPremiumUser;
 
     return (
@@ -156,17 +159,17 @@ const LessonDetailsPage = ({ params }) => {
 
                     {/* মেইন কন্টেন্ট বডি */}
                     <div className={`relative min-h-[150px] ${isContentLocked ? "blur-md select-none pointer-events-none" : ""}`}>
-                        {lesson?.image && <img src={lesson.image} alt="Featured" className="w-full h-64 object-cover rounded-2xl mb-6 border border-slate-800" />}
+                        {lesson?.image && <img src={lesson?.image} alt="Featured" className="w-full h-64 object-cover rounded-2xl mb-6 border border-slate-800" />}
                         <p className="text-slate-300 text-sm sm:text-base leading-relaxed whitespace-pre-line">{lesson?.description}</p>
                     </div>
 
-                    {/* প্রীমিয়াম লক ব্যানার ওভারলে */}
+                    {/* প্রীমিয়াম লক ব্যানার ওভারলে */}
                     {isContentLocked && (
                         <div className="absolute inset-x-0 bottom-0 top-24 flex flex-col items-center justify-center bg-slate-950/80 p-6 text-center space-y-4">
                             <span className="text-4xl">⭐</span>
                             <h3 className="text-xl font-bold text-white">Unlock This Premium Insight</h3>
-                            <p className="text-sm text-slate-400 max-w-sm">এই এক্সক্লুসিভ লাইফ লেসনটি পড়ার জন্য আপনার অ্যাকাউন্টটি প্রিমিয়ামে আপগ্রেড করুন।</p>
-                            <Link href="/dashboard/upgrade" className="bg-gradient-to-r from-amber-500 to-orange-500 text-black font-black text-sm px-6 py-3 rounded-xl shadow-lg">
+                            <p className="text-sm text-slate-400 max-w-sm">এই এক্সক্লুসিভ লাইফ লেসনটি পড়ার জন্য আপনার অ্যাকাউন্টটি প্রিমিয়ামে আপগ্রেড করুন।</p>
+                            <Link href="/pricing" className="bg-gradient-to-r from-amber-500 to-orange-500 text-black font-black text-sm px-6 py-3 rounded-xl shadow-lg">
                                 Upgrade Plan Now 🚀
                             </Link>
                         </div>
@@ -180,16 +183,24 @@ const LessonDetailsPage = ({ params }) => {
                     </div>
                 </div>
 
-                {/* ৩. অথর/ক্রিয়েটর সেকশন এবং ৪. স্ট্যাটস অ্যান্ড এনগেজমেন্ট */}
+                {/* ৩. অথর/ক্রিয়েটর সেকশন এবং ৪. স্ট্যাটস অ্যান্ড এনগেজমেন্ট */}
                 {!isContentLocked && (
                     <>
                         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                            {/* ক্রিয়েটর কার্ড */}
+                            {/* ক্রিয়েটর কার্ড */}
                             <div className="md:col-span-2 bg-slate-900/60 border border-slate-800 p-6 rounded-2xl flex items-center gap-4">
-                                <img src={lesson?.creator?.image || "https://placehold.co/100"} alt={lesson?.creator?.name} className="w-14 h-14 rounded-full border border-slate-700 object-cover" />
+                                <img 
+                                    src={
+                                        user?.email === lesson?.creatorEmail 
+                                            ? user?.image 
+                                            : `https://ui-avatars.com/api/?name=${encodeURIComponent(lesson?.creatorName || 'Anonymous')}&background=f1f5f9&color=0f172a&bold=true`
+                                    } 
+                                    alt={lesson?.creatorName || "Author"} 
+                                    className="w-14 h-14 rounded-full border border-slate-700 object-cover" 
+                                />
                                 <div className="space-y-1">
                                     <p className="text-xs text-slate-500">Shared Wisdom By</p>
-                                    <h4 className="text-base font-black text-white">{lesson?.creator?.name}</h4>
+                                    <h4 className="text-base font-black text-white">{lesson?.creatorName || "Anonymous"}</h4>
                                     <button className="text-[11px] font-bold text-indigo-400 hover:underline block">View all lessons by this author →</button>
                                 </div>
                             </div>
@@ -198,12 +209,12 @@ const LessonDetailsPage = ({ params }) => {
                             <div className="bg-slate-900/60 border border-slate-800 p-6 rounded-2xl flex flex-col justify-center space-y-4">
                                 <div className="flex justify-around text-center text-xs text-slate-400">
                                     <div><p className="text-lg font-bold text-white">{likesCount}</p> Likes ❤️</div>
-                                    <div><p className="text-lg font-bold text-white">{lesson?.favoritesCount || 0}</p> Saved 🔖</div>
+                                    <div><p className="text-lg font-bold text-white">{favoritesCount}</p> Saved 🔖</div>
                                 </div>
                                 <div className="flex gap-2 justify-center">
-                                    <button onClick={handleLikeToggle} className={`px-4 py-2 rounded-xl text-xs font-bold border transition-all ${likesArray.includes(user?.email) ? 'bg-rose-500/10 border-rose-500/30 text-rose-400' : 'bg-slate-950 border-slate-800 text-slate-300'}`}>❤️ Like</button>
-                                    <button onClick={handleFavoriteToggle} className={`px-4 py-2 rounded-xl text-xs font-bold border transition-all ${isSaved ? 'bg-amber-500/10 border-amber-500/30 text-amber-400' : 'bg-slate-950 border-slate-800 text-slate-300'}`}>🔖 {isSaved ? "Saved" : "Save"}</button>
-                                    <button onClick={handleReport} className="px-3 py-2 rounded-xl text-xs font-bold bg-slate-950 border border-slate-800 text-rose-400 hover:bg-rose-500/10 transition-all">🚩 Report</button>
+                                    <button onClick={handleLikeToggle} className={`px-4 py-2 rounded-xl text-xs font-bold border transition-all hover:cursor-pointer ${likesArray.includes(user?.email) ? 'bg-rose-500/10 border-rose-500/30 text-rose-400' : 'bg-slate-950 border-slate-800 text-slate-300'}`}>❤️ Like</button>
+                                    <button onClick={handleFavoriteToggle} className={`px-4 py-2 rounded-xl text-xs font-bold border transition-all hover:cursor-pointer ${isSaved ? 'bg-amber-500/10 border-amber-500/30 text-amber-400' : 'bg-slate-950 border-slate-800 text-slate-300'}`}>🔖 {isSaved ? "Saved" : "Save"}</button>
+                                    <button onClick={handleReport} className="px-3 py-2 rounded-xl text-xs font-bold bg-slate-950 border border-slate-800 text-rose-400 hover:cursor-pointer hover:bg-rose-500/10 transition-all">🚩 Report</button>
                                 </div>
                             </div>
                         </div>

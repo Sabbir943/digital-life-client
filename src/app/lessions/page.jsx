@@ -7,7 +7,9 @@ import Link from 'next/link';
 const PublicLessonsPage = () => {
     const { data: session } = authClient.useSession();
     const user = session?.user;
-    const isPremiumUser = user?.plan === "premium" || user?.isPremium || false;
+    
+    // matching with the updated backend structure where plan can be "Pro" or "premium"
+    const isPremiumUser = user?.userPlan === "Pro";
 
     const [lessons, setLessons] = useState([]);
     const [loading, setLoading] = useState(true);
@@ -15,8 +17,7 @@ const PublicLessonsPage = () => {
     useEffect(() => {
         const fetchLessons = async () => {
             try {
-                // ব্যাকএন্ড থেকে সমস্ত পাবলিক লেসন নিয়ে আসা
-                const res = await fetch('http://localhost:8000/api/public-lessons');
+                const res = await fetch('http://localhost:8000/api/lessons');
                 const data = await res.json();
                 setLessons(data);
             } catch (err) {
@@ -30,86 +31,142 @@ const PublicLessonsPage = () => {
 
     if (loading) {
         return (
-            <div className="min-h-screen bg-slate-950 flex justify-center items-center">
-                <div className="w-10 h-10 border-4 border-indigo-500 border-t-transparent rounded-full animate-spin"></div>
+            <div className="min-h-screen bg-white flex justify-center items-center">
+                <div className="w-10 h-10 border-4 border-slate-900 border-t-transparent rounded-full animate-spin"></div>
             </div>
         );
     }
 
     return (
-        <div className="min-h-screen bg-slate-950 text-white py-12 px-4 sm:px-6 lg:px-8">
-            <div className="max-w-6xl mx-auto space-y-8">
-                <div>
-                    <h1 className="text-3xl font-black tracking-tight text-white sm:text-4xl">🌟 Public Life Lessons</h1>
-                    <p className="text-slate-400 text-sm mt-2">পৃথিবীর বিভিন্ন প্রান্তের মানুষের অভিজ্ঞতা ও জীবনের গভীর উপলব্ধি থেকে শিক্ষা নিন।</p>
+        <div className="min-h-screen bg-white text-black py-12 px-4 sm:px-6 lg:px-8 selection:bg-slate-900 selection:text-white">
+            <div className="max-w-6xl mx-auto space-y-10">
+                
+                {/* Header Section */}
+                <div className="border-b border-slate-100 pb-6">
+                    <h1 className="text-4xl font-black tracking-tight text-slate-900 sm:text-5xl">
+                        🌟 Public Life Lessons
+                    </h1>
+                    <p className="text-slate-500 text-sm mt-2 font-medium tracking-wide">
+                        Explore shared wisdom, life-changing realisations, and personal insights from people worldwide.
+                    </p>
                 </div>
 
-                {/* কার্ড লেআউট গ্রিড */}
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                {/* Card Layout Grid */}
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
                     {lessons.map((lesson) => {
-                        const isLocked = lesson.accessLevel === "Premium" && !isPremiumUser;
-
+                        const isPremiumLesson = lesson.accessLevel === "Premium";
+                        const isLocked = isPremiumLesson && !isPremiumUser;
+                         
                         return (
-                            <div key={lesson._id} className="relative group overflow-hidden bg-gradient-to-b from-slate-900 to-black border border-slate-800 rounded-2xl shadow-xl flex flex-col justify-between h-[420px] transition-all duration-300 hover:border-slate-700">
+                            <div 
+                                key={lesson._id} 
+                                className="relative group overflow-hidden bg-white border border-slate-200 rounded-2xl shadow-sm hover:shadow-md flex flex-col justify-between h-[520px] transition-all duration-300 hover:border-slate-400"
+                            >
                                 
-                                {/* কন্টেন্ট বডি (ইউজার প্রীমিয়াম না হলে ব্লার দেখাবে) */}
-                                <div className={`p-6 space-y-4 flex-1 ${isLocked ? "blur-sm select-none pointer-events-none" : ""}`}>
-                                    {/* ক্যাটাগরি ও অ্যাক্সেস ব্যাজ */}
+                                {/* 🖼️ Lesson Cover Image Section */}
+                                <div className="w-full h-44 overflow-hidden border-b border-slate-100 relative bg-slate-50">
+                                    <img 
+                                        src={lesson?.image || "https://images.unsplash.com/photo-1516321318423-f06f85e504b3?q=80&w=600&auto=format&fit=crop"} 
+                                        alt={lesson?.title} 
+                                        className={`w-full h-full object-cover transition-transform duration-300 group-hover:scale-105 ${
+                                            isLocked ? "blur-md scale-110 select-none pointer-events-none" : ""
+                                        }`}
+                                    />
+                                </div>
+
+                                {/* Content Body */}
+                                <div className={`p-6 space-y-4 flex-1 flex flex-col ${isLocked ? "blur-xs select-none pointer-events-none opacity-40" : ""}`}>
+                                    
+                                    {/* Category & Access Level Badges */}
                                     <div className="flex justify-between items-center text-xs">
-                                        <span className="bg-indigo-500/10 border border-indigo-500/20 text-indigo-400 px-2.5 py-1 rounded-md font-bold">
-                                            {lesson.category}
+                                        <span className="bg-slate-100 border border-slate-200 text-slate-800 px-3 py-1 rounded-lg font-bold uppercase tracking-wider">
+                                            {lesson?.category || "General"}
                                         </span>
-                                        <span className={`px-2.5 py-1 rounded-md font-black uppercase tracking-wider ${
-                                            lesson.accessLevel === "Premium" ? "bg-amber-500/10 text-amber-400 border border-amber-500/20" : "bg-slate-800 text-slate-400"
+                                        <span className={`px-3 py-1 rounded-lg font-black uppercase tracking-widest text-[10px] border ${
+                                            isPremiumLesson 
+                                                ? "bg-amber-50 text-amber-700 border-amber-200 shadow-xs" 
+                                                : "bg-slate-50 text-slate-500 border-slate-100"
                                         }`}>
-                                            {lesson.accessLevel === "Premium" ? "Premium ⭐" : "Free"}
+                                            {isPremiumLesson ? "Premium ⭐" : "Free"}
                                         </span>
                                     </div>
 
-                                    {/* টাইটেল ও ডেসক্রিপশন প্রাকদর্শন */}
-                                    <div>
-                                        <h3 className="text-lg font-black text-slate-100 line-clamp-2 group-hover:text-white transition-colors">{lesson.title}</h3>
-                                        <p className="text-slate-400 text-xs mt-2 leading-relaxed line-clamp-4">{lesson.description}</p>
+                                    {/* Title & Short Description Preview */}
+                                    <div className="flex-1 space-y-3">
+                                        <h3 className="text-xl font-black text-slate-900 tracking-tight line-clamp-2 group-hover:text-indigo-600 transition-colors">
+                                            {lesson?.title}
+                                        </h3>
+                                        <p className="text-slate-600 text-[16px] font-normal leading-relaxed line-clamp-3">
+                                            {lesson?.description}
+                                        </p>
                                     </div>
 
-                                    {/* ইমোশনাল টোন */}
-                                    <div className="text-xs text-slate-500 flex items-center gap-1">
-                                        <span>🎭 Tone:</span> <span className="text-slate-300 font-medium">{lesson.emotionalTone}</span>
-                                    </div>
-                                </div>
-
-                                {/* ক্রিয়েটর ইনফো এবং অ্যাকশন বাটন (এটি লক হলেও ভিজিবল থাকবে) */}
-                                <div className="p-6 border-t border-slate-900 bg-black/40 flex flex-col gap-4 mt-auto">
-                                    <div className="flex items-center justify-between">
-                                        <div className="flex items-center gap-2.5">
-                                            <img 
-                                                src={lesson.creator?.image || "https://placehold.co/100"} 
-                                                alt={lesson.creator?.name}
-                                                className="w-8 h-8 rounded-full border border-slate-800 object-cover"
-                                            />
-                                            <div>
-                                                <p className="text-xs font-bold text-slate-200 truncate max-w-[120px]">{lesson.creator?.name}</p>
-                                                <span className="text-[10px] text-slate-500 block">{new Date(lesson.createdAt).toLocaleDateString()}</span>
-                                            </div>
-                                        </div>
-
-                                        {/* See Details বাটন */}
-                                        {!isLocked && (
-                                            <Link href={`/lessons/${lesson._id}`} className="px-4 py-2 bg-slate-900 border border-slate-800 text-slate-200 hover:text-white hover:bg-slate-800 text-xs font-bold rounded-xl transition-all">
-                                                See Details
-                                            </Link>
-                                        )}
+                                    {/* Emotional Tone Indicator */}
+                                    <div className="text-xs text-slate-400 flex items-center gap-1.5 font-semibold pt-2">
+                                        <span>🎭 Tone:</span> 
+                                        <span className="text-slate-700 font-bold uppercase tracking-wide bg-slate-50 px-2 py-0.5 rounded border border-slate-100">
+                                            {lesson?.emotionalTone || "Neutral"}
+                                        </span>
                                     </div>
                                 </div>
 
-                                {/* 🔒 প্রীমিয়াম লক ওভারলে স্ক্রিন */}
+                              {/* Creator Info Panel & Navigation Action Button */}
+<div className="p-6 border-t border-slate-100 bg-slate-50/50 flex flex-col gap-4 mt-auto">
+    <div className="flex items-center justify-between">
+        <div className="flex items-center gap-3">
+            
+            {/* 📸 ক্রিয়েটরের ইমেজ লজিক */}
+            <img 
+                src={
+                    // যদি এই লেসনের ক্রিয়েটর এবং বর্তমান লগইন থাকা ইউজার একই হয়, তবে সেশনের ইমেজ দেখাবে
+                    user?.email === lesson?.creatorEmail 
+                        ? user?.image 
+                        : `https://ui-avatars.com/api/?name=${encodeURIComponent(lesson?.creatorName || 'Anonymous')}&background=f1f5f9&color=0f172a&bold=true`
+                } 
+                alt={lesson?.creatorName || "Author"}
+                className="w-9 h-9 rounded-full border border-slate-200 object-cover shadow-xs"
+            />
+            
+            <div>
+                {/* 👤 ডাটাবেজ থেকে সরাসরি আসা creatorName */}
+                <p className="text-xs font-bold text-slate-800 truncate max-w-[130px]">
+                    {lesson?.creatorName || "Anonymous"}
+                </p>
+                <span className="text-[10px] font-medium text-slate-400 block mt-0.5">
+                    {lesson.createdAt ? new Date(lesson.createdAt).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }) : "Recent"}
+                </span>
+            </div>
+        </div>
+
+        {/* See Details Button */}
+        {!isLocked && (
+            <Link 
+                href={`/lessions/${lesson._id}`} 
+                className="px-4 py-2 bg-slate-900 hover:bg-slate-800 text-white text-xs font-bold rounded-xl transition-all shadow-xs"
+            >
+                See Details
+            </Link>
+        )}
+    </div>
+</div>
+
+                                {/* 🔒 Professional Lock Overlay for Free Plan Viewers */}
                                 {isLocked && (
-                                    <div className="absolute inset-0 flex flex-col items-center justify-center bg-black/60 backdrop-blur-xs z-10 p-6 text-center space-y-3">
-                                        <div className="text-3xl drop-shadow-[0_0_10px_rgba(245,158,11,0.4)]">🔒</div>
-                                        <p className="text-sm font-black text-white">Premium Lesson</p>
-                                        <p className="text-[11px] text-slate-400 max-w-[180px]">Upgrade to premium to unlock this lifelong wisdom.</p>
-                                        <Link href="/dashboard/upgrade" className="mt-2 bg-gradient-to-r from-amber-500 to-orange-500 text-black font-black text-[11px] uppercase tracking-wider px-4 py-2 rounded-xl shadow-lg shadow-amber-500/10">
-                                            Upgrade to view
+                                    <div className="absolute inset-0 flex flex-col items-center justify-center bg-white/80 z-10 p-6 text-center space-y-4 transition-all">
+                                        <div className="w-12 h-12 bg-amber-50 border border-amber-200 text-amber-600 rounded-2xl flex items-center justify-center text-xl shadow-xs animate-pulse">
+                                            🔒
+                                        </div>
+                                        <div>
+                                            <p className="text-md font-black text-slate-900 tracking-tight">Premium Insight Locked</p>
+                                            <p className="text-xs text-slate-500 max-w-[200px] mt-1 mx-auto leading-normal font-medium">
+                                                Upgrade your membership subscription package to view this insight.
+                                            </p>
+                                        </div>
+                                        <Link 
+                                            href="/pricing" 
+                                            className="mt-2 bg-slate-900 hover:bg-slate-800 text-white font-bold text-xs uppercase tracking-wider px-5 py-2.5 rounded-xl shadow-md transition-all active:scale-95"
+                                        >
+                                            Upgrade Plan
                                         </Link>
                                     </div>
                                 )}
