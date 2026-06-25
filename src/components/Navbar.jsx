@@ -71,7 +71,7 @@ const Navbar = () => {
                         <Link href="/" className={getLinkClass('/')}>
                             <FiHome className="w-4 h-4" /> Home
                         </Link>
-                        <Link href="/explore" className={getLinkClass('/explore')}>
+                        <Link href="/lessions" className={getLinkClass('/lessions')}>
                             <FiGlobe className="w-4 h-4" /> Explore 
                         </Link>
 
@@ -174,7 +174,7 @@ const Navbar = () => {
             {isOpen && (
                 <div className="md:hidden mt-2 max-w-7xl mx-auto rounded-2xl border border-slate-800/80 bg-slate-950/95 backdrop-blur-xl px-4 py-4 space-y-2 shadow-2xl">
                     <Link href="/" className={getMobileLinkClass('/')} onClick={() => setIsOpen(false)}>Home</Link>
-                    <Link href="/explore" className={getMobileLinkClass('/explore')} onClick={() => setIsOpen(false)}>Public Lessons</Link>
+                    <Link href="/lessions" className={getMobileLinkClass('/lessions')} onClick={() => setIsOpen(false)}>Public Lessons</Link>
                     
                     {isLoggedIn && (
                         <>
