@@ -10,13 +10,15 @@ const ManageLessons = () => {
     const [category, setCategory] = useState('All');
     const [loading, setLoading] = useState(true);
 
+    const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000';
+
     const fetchAllLessons = async () => {
         try {
-            const res = await fetch(`http://localhost:8000/api/admin/lessons?category=${category}`);
+            const res = await fetch(`${API_BASE_URL}/api/admin/lessons?category=${category}`);
             const data = await res.json();
             if (res.ok) {
-                setLessons(data.lessons);
-                setStats(data.counts);
+                setLessons(data.lessons || []);
+                setStats(data.counts || { public: 0, private: 0, flagged: 0 });
             }
         } catch (err) {
             toast.error("Failed to load lessons database");
@@ -31,14 +33,16 @@ const ManageLessons = () => {
 
     const handleFeature = async (id, currentStatus) => {
         try {
-            const res = await fetch(`/api/admin/lessons/${id}/feature`, {
+            const res = await fetch(`${API_BASE_URL}/api/admin/lessons/${id}/feature`, {
                 method: 'PATCH',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ isFeatured: !currentStatus })
             });
             if (res.ok) {
-                toast.success("Featured status toggled.");
+                toast.success(!currentStatus ? "Lesson marked as Featured!" : "Removed from Featured status");
                 fetchAllLessons();
+            } else {
+                toast.error("Failed to update status");
             }
         } catch (err) {
             toast.error("Action failed");
@@ -47,10 +51,14 @@ const ManageLessons = () => {
 
     const handleReview = async (id) => {
         try {
-            const res = await fetch(`/api/admin/lessons/${id}/review`, { method: 'PATCH' });
+            const res = await fetch(`${API_BASE_URL}/api/admin/lessons/${id}/review`, { 
+                method: 'PATCH' 
+            });
             if (res.ok) {
                 toast.success("Content marked as Reviewed.");
                 fetchAllLessons();
+            } else {
+                toast.error("Review action failed");
             }
         } catch (err) {
             toast.error("Action failed");
@@ -60,10 +68,14 @@ const ManageLessons = () => {
     const handleDeleteLesson = async (id) => {
         if (!confirm("Are you sure you want to permanently delete this lesson?")) return;
         try {
-            const res = await fetch(`/api/admin/lessons/${id}`, { method: 'DELETE' });
+            const res = await fetch(`${API_BASE_URL}/api/admin/lessons/${id}`, { 
+                method: 'DELETE' 
+            });
             if (res.ok) {
-                toast.error("Lesson has been permanently removed.");
+                toast.success("Lesson has been permanently removed.");
                 fetchAllLessons();
+            } else {
+                toast.error("Delete request rejected");
             }
         } catch (err) {
             toast.error("Delete failed");
@@ -108,35 +120,43 @@ const ManageLessons = () => {
                             </tr>
                         </thead>
                         <tbody className="divide-y divide-slate-800/50 text-sm text-slate-300">
-                            {lessons.map((l) => (
-                                <tr key={l._id} className="hover:bg-slate-900/20 transition-colors">
-                                    <td className="p-4">
-                                        <p className="font-semibold text-slate-200">{l.title}</p>
-                                        <p className="text-xs text-slate-500 mt-0.5">By {l.user?.name || "Unknown"}</p>
-                                    </td>
-                                    <td className="p-4 text-xs font-medium text-slate-400">{l.category}</td>
-                                    <td className="p-4">
-                                        <span className={`text-[11px] font-bold px-2 py-0.5 rounded ${l.visibility === 'Public' ? 'bg-indigo-500/10 text-indigo-400' : 'bg-slate-800 text-slate-500'}`}>
-                                            {l.visibility}
-                                        </span>
-                                    </td>
-                                    <td className="p-4 text-right">
-                                        <div className="flex items-center justify-end gap-2">
-                                            <button onClick={() => handleFeature(l._id, l.isFeatured)} className={`p-2 border rounded-xl transition-all ${l.isFeatured ? 'bg-amber-500/10 text-amber-400 border-amber-500/30' : 'bg-slate-950/40 text-slate-500 border-slate-800'}`}>
-                                                <FiStar className={l.isFeatured ? "fill-amber-400" : ""} />
-                                            </button>
-                                            {!l.isReviewed && (
-                                                <button onClick={() => handleReview(l._id)} className="p-2 bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 rounded-xl hover:bg-emerald-600 hover:text-white transition-all">
-                                                    <FiCheck />
-                                                </button>
-                                            )}
-                                            <button onClick={() => handleDeleteLesson(l._id)} className="p-2 bg-rose-500/10 text-rose-400 border border-rose-500/20 rounded-xl hover:bg-rose-500 hover:text-white transition-all">
-                                                <FiTrash2 />
-                                            </button>
-                                        </div>
+                            {lessons.length === 0 ? (
+                                <tr>
+                                    <td colSpan="4" className="p-8 text-center text-slate-500 text-xs">
+                                        No entries found matching this scope.
                                     </td>
                                 </tr>
-                            ))}
+                            ) : (
+                                lessons.map((l) => (
+                                    <tr key={l._id} className="hover:bg-slate-900/20 transition-colors">
+                                        <td className="p-4">
+                                            <p className="font-semibold text-slate-200">{l.title}</p>
+                                            <p className="text-xs text-slate-500 mt-0.5">By {l.creatorName || l.creatorEmail || "Anonymous"}</p>
+                                        </td>
+                                        <td className="p-4 text-xs font-medium text-slate-400">{l.category}</td>
+                                        <td className="p-4">
+                                            <span className={`text-[11px] font-bold px-2 py-0.5 rounded ${l.visibility === 'Public' ? 'bg-indigo-500/10 text-indigo-400' : 'bg-slate-800 text-slate-500'}`}>
+                                                {l.visibility}
+                                            </span>
+                                        </td>
+                                        <td className="p-4 text-right">
+                                            <div className="flex items-center justify-end gap-2">
+                                                <button onClick={() => handleFeature(l._id, l.isFeatured)} className={`p-2 border rounded-xl transition-all ${l.isFeatured ? 'bg-amber-500/10 text-amber-400 border-amber-500/30' : 'bg-slate-950/40 text-slate-500 border-slate-800'}`}>
+                                                    <FiStar className={l.isFeatured ? "fill-amber-400" : ""} />
+                                                </button>
+                                                {!l.isReviewed && (
+                                                    <button onClick={() => handleReview(l._id)} className="p-2 bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 rounded-xl hover:bg-emerald-600 hover:text-white transition-all">
+                                                        <FiCheck />
+                                                    </button>
+                                                )}
+                                                <button onClick={() => handleDeleteLesson(l._id)} className="p-2 bg-rose-500/10 text-rose-400 border border-rose-500/20 rounded-xl hover:bg-rose-500 hover:text-white transition-all">
+                                                    <FiTrash2 />
+                                                </button>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                ))
+                            )}
                         </tbody>
                     </table>
                 </div>
