@@ -8,8 +8,7 @@ import Banner from '@/components/Banner';
 import { authClient } from '@/lib/auth-client';
 
 
-// 💡 নোট: আপনার তৈরি করা Hero Banner কম্পোনেন্টটি এখানে ইম্পোর্ট করে নিতে পারেন
-// import HeroBanner from '@/components/HeroBanner';
+
 
 const HomePage = () => {
 

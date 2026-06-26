@@ -38,7 +38,7 @@ const Navbar = () => {
     const isPremiumUser = user?.userPlan === "Pro";
 
     // রোল অনুযায়ী ডাইনামিক ড্যাশবোর্ড রুট নির্ধারণ
-    const dashboardHref = isAdmin ? '/dashboard/admin' : '/';
+    const dashboardHref = isAdmin ? '/dashboard/admin' : '/dashboard/user';
 
     const isActive = (path) => pathname === path;
 

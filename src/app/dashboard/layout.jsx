@@ -52,11 +52,11 @@ const DashBoardLayout = ({ children }) => {
 
     // 👤 ২. ইউজার ড্যাশবোর্ড সাইডবার লিংকসমূহ (আপনার অলরেডি করা রুট স্ট্রাকচার)
     const userLinks = [
-        { href: '/dashboard', label: 'Dashboard Home', icon: '📊' },
-        { href: '/dashboard/add-lesson', label: 'Add Lesson', icon: '➕' },
-        { href: '/dashboard/my-lessons', label: 'My Lessons', icon: '📝' },
-        { href: '/dashboard/myFav', label: 'My Favorites', icon: '🔖' },
-        { href: '/dashboard/myProf', label: 'Profile Settings', icon: '👤' },
+        { href: '/dashboard/user', label: 'Dashboard Home', icon: '📊' },
+        { href: '/dashboard/user/add-lesson', label: 'Add Lesson', icon: '➕' },
+        { href: '/dashboard/user/my-lessons', label: 'My Lessons', icon: '📝' },
+        { href: '/dashboard/user/myFav', label: 'My Favorites', icon: '🔖' },
+        { href: '/dashboard/user/myProf', label: 'Profile Settings', icon: '👤' },
     ];
 
     // রোল অনুযায়ী একটিভ লিংকের লিস্ট সিলেক্ট করা
