@@ -23,7 +23,7 @@ const MyLessons = () => {
         try {
             setLoading(true);
             // ব্যাকএন্ডে কুয়েরি প্যারাম হিসেবে ইমেইল পাঠানো হচ্ছে যাতে ফিল্টারড ডাটা আসে
-            const res = await fetch(`http://localhost:8000/api/lessons?email=${user.email}`);
+            const res = await fetch(`${process.env.NEXT_PUBLIC_SERVER_URL}/api/lessons?email=${user.email}`);
             const data = await res.json();
             setLessons(data);
         } catch (error) {
@@ -43,7 +43,7 @@ const MyLessons = () => {
     const handleToggleVisibility = async (id, currentVisibility) => {
         const newVisibility = currentVisibility === "Public" ? "Private" : "Public";
         try {
-            const res = await fetch(`http://localhost:8000/api/lessons/${id}`, {
+            const res = await fetch(`${process.env.NEXT_PUBLIC_SERVER_URL}/api/lessons/${id}`, {
                 method: 'PATCH',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ visibility: newVisibility })
@@ -65,7 +65,7 @@ const MyLessons = () => {
         }
         const newAccess = currentAccess === "Free" ? "Premium" : "Free";
         try {
-            const res = await fetch(`http://localhost:8000/api/lessons/${id}`, {
+            const res = await fetch(`${process.env.NEXT_PUBLIC_SERVER_URL}/api/lessons/${id}`, {
                 method: 'PATCH',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ accessLevel: newAccess })
@@ -94,7 +94,7 @@ const MyLessons = () => {
         }).then(async (result) => {
             if (result.isConfirmed) {
                 try {
-                    const res = await fetch(`http://localhost:8000/api/lessons/${id}`, { method: 'DELETE' });
+                    const res = await fetch(`${process.env.NEXT_PUBLIC_SERVER_URL}/api/lessons/${id}`, { method: 'DELETE' });
                     if (res.ok) {
                         setLessons(prev => prev.filter(l => l._id !== id));
                         Swal.fire({ title: 'Deleted!', text: 'Your lesson has been deleted.', icon: 'success', background: '#1e293b', color: '#fff' });
@@ -117,7 +117,7 @@ const MyLessons = () => {
         e.preventDefault();
         setUpdateLoading(true);
         try {
-            const res = await fetch(`http://localhost:8000/api/lessons/${editingLesson._id}`, {
+            const res = await fetch(`${process.env.NEXT_PUBLIC_SERVER_URL}/api/lessons/${editingLesson._id}`, {
                 method: 'PUT',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify(editingLesson)

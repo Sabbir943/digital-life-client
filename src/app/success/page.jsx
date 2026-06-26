@@ -48,8 +48,8 @@ export default async function SuccessPage({ searchParams }) {
                     </div>
                 )}
                 
-                <Link href="/dashboard" className="mt-6 inline-block bg-indigo-600 px-6 py-2.5 rounded-xl text-sm font-bold hover:bg-indigo-700 transition">
-                    Go to Dashboard
+                <Link href="/" className="mt-6 inline-block bg-indigo-600 px-6 py-2.5 rounded-xl text-sm font-bold hover:bg-indigo-700 transition">
+                    Go to Home
                 </Link>
             </div>
         </div>

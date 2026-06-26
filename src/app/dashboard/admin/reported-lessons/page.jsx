@@ -13,7 +13,7 @@ const ReportedLessons = () => {
     const fetchReports = async () => {
         try {
             // FIX: Changed to relative API path matching your Next.js application ecosystem
-            const res = await fetch('http://localhost:8000/api/admin/reports');
+            const res = await fetch(`${process.env.NEXT_PUBLIC_SERVER_URL}/api/admin/reports`);
             const data = await res.json();
             if (res.ok) {
                 setReports(data.reportedLessons || data.reports || []);
@@ -31,7 +31,7 @@ const ReportedLessons = () => {
 
     const handleIgnore = async (id) => {
         try {
-            const res = await fetch(`http://localhost:8000/api/admin/reports/${id}/ignore`, { method: 'DELETE' });
+            const res = await fetch(`${process.env.NEXT_PUBLIC_SERVER_URL}/api/admin/reports/${id}/ignore`, { method: 'DELETE' });
             if (res.ok) {
                 toast.success("Reports ignored successfully.");
                 fetchReports();
@@ -46,7 +46,7 @@ const ReportedLessons = () => {
     const handleDeleteReported = async () => {
         if (!deleteTarget) return;
         try {
-            const res = await fetch(`http://localhost:8000/api/admin/lessons/${deleteTarget._id}`, { method: 'DELETE' });
+            const res = await fetch(`${process.env.NEXT_PUBLIC_SERVER_URL}/api/admin/lessons/${deleteTarget._id}`, { method: 'DELETE' });
             if (res.ok) {
                 // FIX: Changed from toast.error to toast.success for a successful operation
                 toast.success("Content deleted from database.");

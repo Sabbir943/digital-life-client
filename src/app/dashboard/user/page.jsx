@@ -74,7 +74,7 @@ const DashboardHome = () => {
             setLoadingData(true);
             
             // ১. ইউজারের তৈরি করা সব লেসন ফেচ করা
-            const lessonsRes = await fetch(`http://localhost:8000/api/lessons?email=${user.email}`);
+            const lessonsRes = await fetch(`${process.env.NEXT_PUBLIC_SERVER_URL}/api/lessons?email=${user.email}`);
             const lessonsData = await lessonsRes.json();
             
             if (Array.isArray(lessonsData)) {
@@ -91,7 +91,7 @@ const DashboardHome = () => {
             }
 
             // ২. ইউজারের সেভ করা ফেভারিট লেসন ফেচ করা
-            const favRes = await fetch(`http://localhost:8000/api/users/${user.email}/favorites`);
+            const favRes = await fetch(`${process.env.NEXT_PUBLIC_SERVER_URL}/api/users/${user.email}/favorites`);
             const favData = await favRes.json();
             if (Array.isArray(favData)) {
                 setStats(prev => ({ ...prev, saved: favData.length }));

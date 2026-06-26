@@ -44,7 +44,7 @@ const AddLesson = () => {
         };
 
         try {
-            const response = await fetch(`http://localhost:8000/api/lessons`, {
+            const response = await fetch(`${process.env.NEXT_PUBLIC_SERVER_URL}/api/lessons`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',

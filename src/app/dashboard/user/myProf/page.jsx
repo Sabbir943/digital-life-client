@@ -33,7 +33,7 @@ const ProfilePage = () => {
             setLoadingData(true);
             
             // ইউজারের তৈরি করা নিজস্ব সব লেসন ফেচ
-            const lessonsRes = await fetch(`http://localhost:8000/api/lessons?email=${user.email}`);
+            const lessonsRes = await fetch(`${process.env.NEXT_PUBLIC_SERVER_URL}/api/lessons?email=${user.email}`);
             const lessonsData = await lessonsRes.json();
             
             // ডাটা অ্যারে কিনা তা নিশ্চিত করা এবং শুধুমাত্র "Public" লেসনগুলো ফিল্টার করে সর্ট করা
@@ -49,7 +49,7 @@ const ProfilePage = () => {
             }
 
             // ইউজারের সেভ করা ফেভারিট লেসনের সংখ্যা জানার জন্য বুকমার্ক এপিআই কল
-            const favRes = await fetch(`http://localhost:8000/api/users/${user.email}/favorites`);
+            const favRes = await fetch(`${process.env.NEXT_PUBLIC_SERVER_URL}/api/users/${user.email}/favorites`);
             const favData = await favRes.json();
             if (Array.isArray(favData)) {
                 setSavedCount(favData.length);

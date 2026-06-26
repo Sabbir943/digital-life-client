@@ -2,7 +2,7 @@
 
 import React, { useState } from 'react';
 import Link from 'next/link';
-import { useRouter } from 'next/navigation'; 
+import { redirect, useRouter } from 'next/navigation'; 
 import toast from 'react-hot-toast';
 import { FiCompass, FiUser, FiMail, FiLock, FiImage, FiCheck, FiX } from 'react-icons/fi';
 import { FcGoogle } from 'react-icons/fc';
@@ -80,16 +80,14 @@ const SignupPage = () => {
 
             if (data) {
                 toast.success("Welcome aboard! Account built successfully.", { id: loadToastId });
-                
+                router.push('/auth/login')
                 // Form Reset
                 setFormData({ name: '', email: '', photoUrl: '', password: '' });
                 
                 // 🛡️ 🟢 ফিক্সড রিডাইরেকশন গেটকিপার লজিক (সফলভাবে রেজিস্ট্রেশনের পর চেক করবে)
                 if (email === ADMIN_EMAIL) {
                     router.replace('/dashboard/admin'); // ফিক্সড ইমেইল হলে সরাসরি অ্যাডমিন ড্যাশবোর্ড
-                } else {
-                    router.replace('/'); // অন্য যেকোনো ইউজারের জন্য নরমাল ড্যাশবোর্ড
-                }
+                } 
             }
         } catch (err) {
             toast.error("An unexpected registration error occurred.", { id: loadToastId });
