@@ -88,7 +88,7 @@ const SignupPage = () => {
                 if (email === ADMIN_EMAIL) {
                     router.replace('/dashboard/admin'); // ফিক্সড ইমেইল হলে সরাসরি অ্যাডমিন ড্যাশবোর্ড
                 } else {
-                    router.replace('/dashboard'); // অন্য যেকোনো ইউজারের জন্য নরমাল ড্যাশবোর্ড
+                    router.replace('/'); // অন্য যেকোনো ইউজারের জন্য নরমাল ড্যাশবোর্ড
                 }
             }
         } catch (err) {

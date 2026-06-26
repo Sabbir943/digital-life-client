@@ -67,7 +67,7 @@ const LoginPage = () => {
                 if (email === ADMIN_EMAIL) {
                     router.replace('/dashboard/admin'); // সোজা অ্যাডমিন প্যানেলে পাঠাবে
                 } else {
-                    router.replace('/dashboard'); // সাধারণ ইউজারদের রেগুলার ড্যাশবোর্ডে পাঠাবে
+                    router.replace('/'); // সাধারণ ইউজারদের রেগুলার ড্যাশবোর্ডে পাঠাবে
                 }
                 
                 router.refresh();

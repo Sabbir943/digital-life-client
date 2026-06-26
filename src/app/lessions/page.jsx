@@ -17,7 +17,7 @@ const PublicLessonsPage = () => {
     useEffect(() => {
         const fetchLessons = async () => {
             try {
-                const res = await fetch('http://localhost:8000/api/lessons');
+                const res = await fetch('http://localhost:8000/api/public-lessons');
                 const data = await res.json();
                 setLessons(data);
             } catch (err) {

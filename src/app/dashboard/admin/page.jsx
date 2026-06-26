@@ -14,7 +14,7 @@ const AdminHome = () => {
         const fetchDashboardData = async () => {
             try {
                 // আপনার ব্যাকএন্ড এপিআই থেকে রিয়েল-টাইম ডাটা ফেচিং
-                const res = await fetch('http://localhost:8000/api/admin/reports');
+                const res = await fetch('http://localhost:8000/api/admin/overview-stats');
                 const data = await res.json();
                 
                 if (res.ok) {
