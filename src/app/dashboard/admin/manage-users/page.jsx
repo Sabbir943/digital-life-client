@@ -3,6 +3,7 @@
 import React, { useEffect, useState } from 'react';
 import { FiShield, FiTrash2, FiSearch, FiAlertTriangle } from 'react-icons/fi';
 import toast from 'react-hot-toast';
+import { authClient } from "@/lib/auth-client"; // Better-Auth ক্লায়েন্ট প্লাগইন ইম্পোর্ট
 
 const ManageUsers = () => {
     const [users, setUsers] = useState([]);
@@ -14,12 +15,40 @@ const ManageUsers = () => {
 
     const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000';
 
+    // 🔑 হেল্পার ফাংশন: Better-Auth প্লাগইন থেকে ডাইনামিকালি টোকেন নিয়ে হেডার তৈরি করবে
+    const getAuthHeaders = async () => {
+        try {
+            const { data, error } = await authClient.token();
+            
+            if (error || !data?.token) {
+                console.error("Better-Auth token error:", error);
+                return { 'Content-Type': 'application/json' };
+            }
+
+            return {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${data.token}` // Bearer ফরম্যাটে টোকেন পাস
+            };
+        } catch (err) {
+            console.error("Failed to fetch auth token:", err);
+            return { 'Content-Type': 'application/json' };
+        }
+    };
+
     const fetchUsers = async () => {
         try {
-            const res = await fetch(`${API_BASE_URL}/api/admin/users?search=${search}`);
+            const headers = await getAuthHeaders();
+            const res = await fetch(`${API_BASE_URL}/api/admin/users?search=${search}`, {
+                method: 'GET',
+                headers: header // ১. টোকেন হেডার যুক্ত করা হলো
+            });
             const data = await res.json();
             if (res.ok) {
                 setUsers(data.users || []);
+            } else {
+                if (res.status === 401 || res.status === 403) {
+                    toast.error("Access Denied: Admin session missing");
+                }
             }
         } catch (err) {
             toast.error("Failed to sync user database.");
@@ -34,9 +63,10 @@ const ManageUsers = () => {
 
     const handlePromote = async (id, name) => {
         try {
+            const headers = await getAuthHeaders();
             const res = await fetch(`${API_BASE_URL}/api/admin/users/${id}/promote`, { 
                 method: 'PATCH',
-                headers: { 'Content-Type': 'application/json' }
+                headers: headers // ২. টোকেন হেডার যুক্ত করা হলো
             });
             if (res.ok) {
                 toast.success(`${name} promoted to Admin successfully!`);
@@ -60,8 +90,10 @@ const ManageUsers = () => {
         if (!userId) return;
 
         try {
+            const headers = await getAuthHeaders();
             const res = await fetch(`${API_BASE_URL}/api/admin/users/${userId}`, { 
-                method: 'DELETE' 
+                method: 'DELETE',
+                headers: headers // ৩. টোকেন হেডার যুক্ত করা হলো
             });
             if (res.ok) {
                 toast.success("User account removed from database.");
@@ -142,7 +174,7 @@ const ManageUsers = () => {
                                             </td>
                                             <td className="p-4 text-right">
                                                 <div className="flex items-center justify-end gap-2">
-                                                    {u.role?.toLowerCase() !== 'admin' && (
+                                                    ={u.role?.toLowerCase() !== 'admin' && (
                                                         <button 
                                                             onClick={() => handlePromote(u._id, u.name)} 
                                                             className="p-2 px-3 text-xs font-bold bg-indigo-600/10 text-indigo-400 border border-indigo-500/20 rounded-xl hover:bg-indigo-600 hover:text-white hover:border-indigo-600 active:scale-95 transition-all cursor-pointer"

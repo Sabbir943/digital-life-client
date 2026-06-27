@@ -8,11 +8,12 @@ export async function proxy(request) {
         headers: await headers() 
     })
     if(!session){
-      return NextResponse.redirect(new URL('/login', request.url))
+      return NextResponse.redirect(new URL('/auth/login', request.url))
     }
  
 }
  
 export const config = {
-  matcher: '/lessions/:id',
+ 
+    matcher: ['/lessions/:id', '/dashboard/user','/dashboard/user/add-lesson','/dashboard/user/my-lessons','/dashboard/user/myFav','/dashboard/user/myProf','/dashboard/admin','/dashboard/admin/manage-lessons','/dashboard/admin/manage-users','/dashboard/admin/profile','/dashboard/admin/reported-lessons']
 }
