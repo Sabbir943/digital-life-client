@@ -29,7 +29,7 @@ const LoginPage = () => {
         try {
             await authClient.signIn.social({
                 provider: "google",
-                callbackURL: "/"
+               
             });
         } catch (err) {
             toast.error("Google login failed.", { id: "google-auth" });
