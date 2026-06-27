@@ -22,7 +22,7 @@ const MyFavorites = () => {
         if (!user?.email) return;
         try {
             setLoading(true);
-            const res = await fetch(`http://localhost:8000/api/users/${user.email}/favorites`);
+            const res = await fetch(`${process.env.NEXT_PUBLIC_SERVER_URL}/api/users/${user.email}/favorites`);
             const data = await res.json();
             setFavorites(data);
             setFilteredFavorites(data);
