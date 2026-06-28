@@ -35,15 +35,9 @@ const SignupPage = () => {
     };
 
     const handleGoogleLogin = async () => {
-        toast.loading("Connecting to Google...", { id: "google-auth" });
-        try {
-            await authClient.signIn.social({
-                provider: "google",
-                
-            });
-        } catch (err) {
-            toast.error("Google authentication failed.", { id: "google-auth" });
-        }
+           const data = await authClient.signIn.social({
+           provider: "google",
+  });
     };
 
     const handleSubmit = async (e) => {
