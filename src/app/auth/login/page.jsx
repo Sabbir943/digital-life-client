@@ -97,7 +97,8 @@ const LoginPage = () => {
                 <button
                     onClick={handleGoogleLogin}
                     type="button"
-                    className="w-full flex items-center justify-center gap-3 px-4 py-3 bg-slate-950/60 hover:bg-slate-950 border border-slate-800 rounded-xl font-medium text-sm text-slate-200 transition-all duration-200 mb-6 group hover:border-slate-700"
+
+                    className="w-full flex items-center hover:cursor-pointer justify-center gap-3 px-4 py-3 bg-slate-950/60 hover:bg-slate-950 border border-slate-800 rounded-xl font-medium text-sm text-slate-200 transition-all duration-200 mb-6 group hover:border-slate-700"
                 >
                     <FcGoogle className="w-5 h-5" />
                     <span>Sign in with Google</span>
