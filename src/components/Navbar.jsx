@@ -2,7 +2,7 @@
 
 import React, { useState } from 'react';
 import Link from 'next/link';
-import { usePathname } from 'next/navigation';
+import { usePathname, useRouter } from 'next/navigation';
 import { 
     FiCompass, FiPlus, FiBookOpen, FiGlobe, FiAward, 
     FiLogOut, FiUser, FiMenu, FiX, FiChevronDown, FiHome, FiShield 
@@ -14,6 +14,7 @@ import toast from 'react-hot-toast';
 const ADMIN_EMAIL = "admin@gmail.com";
 
 const Navbar = () => { 
+    const router= useRouter();
     const [isOpen, setIsOpen] = useState(false);
     const [isDropdownOpen, setIsDropdownOpen] = useState(false);
     const pathname = usePathname();
@@ -24,7 +25,10 @@ const Navbar = () => {
     const handleLogOut = async () => {
         try {
             await authClient.signOut();
+
             toast.success("Logout done!!");
+            router.push('/');
+
         } catch (err) {
             toast.error("Something went wrong!");
         }

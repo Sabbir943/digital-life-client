@@ -16,10 +16,10 @@ export const auth = betterAuth({
     }, 
   },
   
-  // 🌟 এখানে আপনার Vercel ডোমেইনটি trustedOrigins হিসেবে যুক্ত করুন
-  trustedOrigins: [
-    "https://digital-life-client-eta.vercel.app"
-  ],
+  // // 🌟 এখানে আপনার Vercel ডোমেইনটি trustedOrigins হিসেবে যুক্ত করুন
+  // trustedOrigins: [
+  //   "https://digital-life-client-eta.vercel.app"
+  // ],
     
   database: mongodbAdapter(db, {
     client
