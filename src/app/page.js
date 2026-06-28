@@ -115,7 +115,7 @@ const HomePage = () => {
                                 </div>
                                 <div className="pt-6 mt-6 border-t border-white/10 flex items-center justify-between text-sm text-neutral-300">
                                     <span>By {lesson.creatorName || "Anonymous"}</span>
-                                    <Link href={`/lessons/${lesson._id}`} className="font-bold text-indigo-300 hover:underline">Read Intel →</Link>
+                                    <Link href={`/lessions/${lesson._id}`} className="font-bold text-indigo-300 hover:underline">Read Intel →</Link>
                                 </div>
                             </div>
                         ))}
