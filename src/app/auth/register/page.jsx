@@ -2,11 +2,12 @@
 
 import React, { useState } from 'react';
 import Link from 'next/link';
-import { redirect, useRouter } from 'next/navigation'; 
+// import { redirect, useRouter } from 'next/navigation'; 
 import toast from 'react-hot-toast';
 import { FiCompass, FiUser, FiMail, FiLock, FiImage, FiCheck, FiX } from 'react-icons/fi';
 import { FcGoogle } from 'react-icons/fc';
 import { authClient } from '@/lib/auth-client';
+import { useRouter } from 'next/navigation';
 
 const ADMIN_EMAIL = "admin@gmail.com";
 

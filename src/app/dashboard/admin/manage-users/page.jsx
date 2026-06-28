@@ -13,34 +13,17 @@ const ManageUsers = () => {
     // Custom Modal State Management
     const [deleteModal, setDeleteModal] = useState({ isOpen: false, userId: null, userName: '' });
 
-    const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000';
+    const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL;
 
     // 🔑 হেল্পার ফাংশন: Better-Auth প্লাগইন থেকে ডাইনামিকালি টোকেন নিয়ে হেডার তৈরি করবে
-    const getAuthHeaders = async () => {
-        try {
-            const { data, error } = await authClient.token();
-            
-            if (error || !data?.token) {
-                console.error("Better-Auth token error:", error);
-                return { 'Content-Type': 'application/json' };
-            }
-
-            return {
-                'Content-Type': 'application/json',
-                'Authorization': `Bearer ${data.token}` // Bearer ফরম্যাটে টোকেন পাস
-            };
-        } catch (err) {
-            console.error("Failed to fetch auth token:", err);
-            return { 'Content-Type': 'application/json' };
-        }
-    };
+  
 
     const fetchUsers = async () => {
         try {
-            const headers = await getAuthHeaders();
+          
             const res = await fetch(`${API_BASE_URL}/api/admin/users?search=${search}`, {
                 method: 'GET',
-                headers: header // ১. টোকেন হেডার যুক্ত করা হলো
+               
             });
             const data = await res.json();
             if (res.ok) {
@@ -63,10 +46,12 @@ const ManageUsers = () => {
 
     const handlePromote = async (id, name) => {
         try {
-            const headers = await getAuthHeaders();
+           
             const res = await fetch(`${API_BASE_URL}/api/admin/users/${id}/promote`, { 
                 method: 'PATCH',
-                headers: headers // ২. টোকেন হেডার যুক্ত করা হলো
+                headers:{
+                    'content-type':"application/json"
+                }
             });
             if (res.ok) {
                 toast.success(`${name} promoted to Admin successfully!`);
@@ -90,10 +75,12 @@ const ManageUsers = () => {
         if (!userId) return;
 
         try {
-            const headers = await getAuthHeaders();
+           
             const res = await fetch(`${API_BASE_URL}/api/admin/users/${userId}`, { 
                 method: 'DELETE',
-                headers: headers // ৩. টোকেন হেডার যুক্ত করা হলো
+                headers:{
+                    'content-type':"application/json"
+                }
             });
             if (res.ok) {
                 toast.success("User account removed from database.");

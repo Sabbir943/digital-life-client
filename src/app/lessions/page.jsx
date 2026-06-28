@@ -38,7 +38,7 @@ const PublicLessonsPage = () => {
                     limit
                 });
 
-                const res = await fetch(`${process.env.NEXT_PUBLIC_SERVER_URL}/api/public-lessons?${queryParams.toString()}`);
+                const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/public-lessons?${queryParams.toString()}`);
                 const data = await res.json();
                 
                 if (data.lessons) {

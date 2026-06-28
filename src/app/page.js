@@ -25,7 +25,7 @@ const HomePage = () => {
     const [mostSaved, setMostSaved] = useState([]);
     const [loading, setLoading] = useState(true);
 
-    const API_BASE_URL = process.env.NEXT_PUBLIC_SERVER_URL || 'http://localhost:8000';
+    const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL ;
 
     useEffect(() => {
         const fetchHomeData = async () => {

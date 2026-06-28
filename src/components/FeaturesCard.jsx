@@ -3,7 +3,7 @@ import { FiStar } from 'react-icons/fi';
 import Link from 'next/link';
 
 const FeaturesCard =async () => {
-    const res= await fetch(`${process.env.NEXT_PUBLIC_SERVER_URL}/api/public-lessons`);
+    const res= await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/public-lessons`);
     const lessonData= await res.json();
      const lesson = lessonData.slice(0,6);
     console.log(lesson);

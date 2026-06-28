@@ -21,7 +21,7 @@ const AdminProfile = () => {
         // অ্যাডমিনের মডারেশন অ্যাক্টিভিটি ডেটা ফেচিং
         const fetchActivityLog = async () => {
             try {
-                const res = await fetch(`${process.env.NEXT_PUBLIC_SERVER_URL}/api/admin/profile-activity`);
+                const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/admin/profile-activity`);
                 if (res.ok) {
                     const data = await res.json();
                     setModerationStats(data.activitySummary);

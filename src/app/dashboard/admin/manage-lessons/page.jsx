@@ -10,7 +10,7 @@ const ManageLessons = () => {
     const [category, setCategory] = useState('All');
     const [loading, setLoading] = useState(true);
 
-    const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000';
+    const API_BASE_URL=process.env.NEXT_PUBLIC_API_URL;
 
     const fetchAllLessons = async () => {
         try {
@@ -52,7 +52,10 @@ const ManageLessons = () => {
     const handleReview = async (id) => {
         try {
             const res = await fetch(`${API_BASE_URL}/api/admin/lessons/${id}/review`, { 
-                method: 'PATCH' 
+                method: 'PATCH' ,
+                headers:{
+                    'content-type':"application/json"
+                }
             });
             if (res.ok) {
                 toast.success("Content marked as Reviewed.");
@@ -69,7 +72,10 @@ const ManageLessons = () => {
         if (!confirm("Are you sure you want to permanently delete this lesson?")) return;
         try {
             const res = await fetch(`${API_BASE_URL}/api/admin/lessons/${id}`, { 
-                method: 'DELETE' 
+                method: 'DELETE' ,
+                 headers:{
+                    'content-type':"application/json"
+                }
             });
             if (res.ok) {
                 toast.success("Lesson has been permanently removed.");

@@ -27,7 +27,7 @@ const LessonDetailsPage = ({ params }) => {
     useEffect(() => {
         const fetchDetails = async () => {
             try {
-                const res = await fetch(`${process.env.NEXT_PUBLIC_SERVER_URL}/api/lessons/${lessonId}`);
+                const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/lessons/${lessonId}`);
                 const data = await res.json();
                 setLesson(data);
                 setLikesArray(data.likes || []);
@@ -35,7 +35,7 @@ const LessonDetailsPage = ({ params }) => {
                 setFavoritesCount(data.favoritesCount || 0);
                 
                 // কমেন্ট লোড করা
-                const commentRes = await fetch(`${process.env.NEXT_PUBLIC_SERVER_URL}/api/lessons/${lessonId}/comments`);
+                const commentRes = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/lessons/${lessonId}/comments`);
                 const commentData = await commentRes.json();
                 setComments(commentData);
             } catch (err) {
@@ -62,7 +62,7 @@ const LessonDetailsPage = ({ params }) => {
         setLikesCount(prev => isAlreadyLiked ? prev - 1 : prev + 1);
 
         try {
-            await fetch(`${process.env.NEXT_PUBLIC_SERVER_URL}/api/lessons/${lessonId}/like`, {
+            await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/lessons/${lessonId}/like`, {
                 method: 'PATCH',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ email: userEmail })
@@ -79,7 +79,7 @@ const LessonDetailsPage = ({ params }) => {
         setFavoritesCount(prev => !isSaved ? prev + 1 : prev - 1);
         Swal.fire({ icon: 'success', title: !isSaved ? 'Saved to Favorites!' : 'Removed!', toast: true, position: 'top-end', showConfirmButton: false, timer: 1500, background: '#1e293b', color: '#fff' });
         
-        await fetch(`${process.env.NEXT_PUBLIC_SERVER_URL}/api/lessons/${lessonId}/favorite`, {
+        await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/lessons/${lessonId}/favorite`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ email: user?.email, toggle: !isSaved })
@@ -105,7 +105,7 @@ const LessonDetailsPage = ({ params }) => {
         });
 
         if (reason) {
-            await fetch(`${process.env.NEXT_PUBLIC_SERVER_URL}/api/reports`, {
+            await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/reports`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ lessonId, reporterEmail: user?.email, reason, timestamp: new Date() })
@@ -131,7 +131,7 @@ const LessonDetailsPage = ({ params }) => {
         setComments([newCommentObj, ...comments]);
         setNewComment("");
 
-        await fetch(`${process.env.NEXT_PUBLIC_SERVER_URL}/api/lessons/${lessonId}/comments`, {
+        await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/lessons/${lessonId}/comments`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify(newCommentObj)

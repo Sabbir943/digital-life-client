@@ -95,10 +95,10 @@ const Navbar = () => {
                                 </>
                             ) : (
                                 <>
-                                    <Link href="/dashboard/user/add-lesson" className={getLinkClass('/dashboard/add-lesson')}>
+                                    <Link href="/dashboard/user/add-lesson" className={getLinkClass('/dashboard/user/add-lesson')}>
                                         <FiPlus className="w-4 h-4" /> Add Lesson
                                     </Link>
-                                    <Link href="/dashboard/user/my-lessons" className={getLinkClass('/dashboard/my-lessons')}>
+                                    <Link href="/dashboard/user/my-lessons" className={getLinkClass('/dashboard/user/my-lessons')}>
                                         <FiBookOpen className="w-4 h-4" /> My Lessons
                                     </Link>
                                 </>
@@ -163,7 +163,7 @@ const Navbar = () => {
                                             </div>
                                             
                                             {/* ডাইনামিক প্রোফাইল লিংক */}
-                                            <Link href={isAdmin ? "/dashboard/admin/profile" : "/dashboard/user/profile"} className="flex items-center gap-2.5 px-3 py-2 text-sm text-slate-300 hover:bg-white/5 rounded-lg transition-colors" onClick={() => setIsDropdownOpen(false)}>
+                                            <Link href={isAdmin ? "/dashboard/admin/profile" : "/dashboard/user/myProf"} className="flex items-center gap-2.5 px-3 py-2 text-sm text-slate-300 hover:bg-white/5 rounded-lg transition-colors" onClick={() => setIsDropdownOpen(false)}>
                                                 <FiUser className="text-slate-400" /> Profile
                                             </Link>
                                             

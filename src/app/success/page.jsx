@@ -17,7 +17,7 @@ export default async function SuccessPage({ searchParams }) {
 
             // ৩. ডেটা সফলভাবে পাওয়ার পর ব্যাকএন্ডে ডাটাবেজ আপডেটের জন্য পাঠাব
             if (metadata) {
-                await fetch(`${process.env.NEXT_PUBLIC_SERVER_URL}/subscription`, {
+                await fetch(`${process.env.NEXT_PUBLIC_API_URL}/subscription`, {
                     method: "POST",
                     headers: {
                         'Content-Type': "application/json"

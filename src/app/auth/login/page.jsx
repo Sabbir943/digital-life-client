@@ -65,9 +65,9 @@ const LoginPage = () => {
                 
                 // 🛡️ 🟢 অ্যাডমিন গেটকিপার রিডাইরেকশন লজিক
                 if (email === ADMIN_EMAIL) {
-                    router.replace('/dashboard/admin'); // সোজা অ্যাডমিন প্যানেলে পাঠাবে
+                    router.push('/dashboard/admin'); // সোজা অ্যাডমিন প্যানেলে পাঠাবে
                 } else {
-                    router.replace('/'); // সাধারণ ইউজারদের রেগুলার ড্যাশবোর্ডে পাঠাবে
+                    router.push('/'); // সাধারণ ইউজারদের রেগুলার ড্যাশবোর্ডে পাঠাবে
                 }
                 
                 router.refresh();

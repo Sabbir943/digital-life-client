@@ -74,7 +74,7 @@ const DashboardHome = () => {
             setLoadingData(true);
             
             // ১. ইউজারের তৈরি করা সব লেসন ফেচ করা
-            const lessonsRes = await fetch(`${process.env.NEXT_PUBLIC_SERVER_URL}/api/lessons?email=${user.email}`);
+            const lessonsRes = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/lessons?email=${user.email}`);
             const lessonsData = await lessonsRes.json();
             
             if (Array.isArray(lessonsData)) {
@@ -91,7 +91,7 @@ const DashboardHome = () => {
             }
 
             // ২. ইউজারের সেভ করা ফেভারিট লেসন ফেচ করা
-            const favRes = await fetch(`${process.env.NEXT_PUBLIC_SERVER_URL}/api/users/${user.email}/favorites`);
+            const favRes = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/users/${user.email}/favorites`);
             const favData = await favRes.json();
             if (Array.isArray(favData)) {
                 setStats(prev => ({ ...prev, saved: favData.length }));
@@ -219,7 +219,7 @@ const DashboardHome = () => {
                                         <span className={`text-[10px] px-2 py-0.5 rounded font-black uppercase ${lesson.visibility === 'Public' ? 'bg-emerald-500/10 text-emerald-400 border border-emerald-500/20' : 'bg-amber-500/10 text-amber-400 border border-amber-500/20'}`}>
                                             {lesson.visibility}
                                         </span>
-                                        <Link href={`/lessons/${lesson._id}`} className="text-[11px] font-bold text-indigo-400 hover:text-indigo-300">
+                                        <Link href={`/lessions/${lesson._id}`} className="text-[11px] font-bold text-indigo-400 hover:text-indigo-300">
                                             View ➔
                                         </Link>
                                     </div>
@@ -236,15 +236,15 @@ const DashboardHome = () => {
                     </h3>
                     
                     <div className="bg-slate-950/60 border border-slate-800/80 rounded-2xl p-4 space-y-2.5 backdrop-blur-md shadow-lg">
-                        <Link href="/dashboard/add-lessons" className="w-full p-3 bg-indigo-600 hover:bg-indigo-500 text-white font-bold text-xs rounded-xl transition-all flex items-center justify-center gap-2 shadow-lg shadow-indigo-600/10">
+                        <Link href="/dashboard/user/add-lesson" className="w-full p-3 bg-indigo-600 hover:bg-indigo-500 text-white font-bold text-xs rounded-xl transition-all flex items-center justify-center gap-2 shadow-lg shadow-indigo-600/10">
                             ➕ Create New Lesson
                         </Link>
                         
-                        <Link href="/dashboard/profile" className="w-full p-3 bg-slate-900 hover:bg-slate-850 text-slate-200 border border-slate-800 font-bold text-xs rounded-xl transition-all flex items-center justify-center gap-2">
+                        <Link href="/dashboard/user/myProf" className="w-full p-3 bg-slate-900 hover:bg-slate-850 text-slate-200 border border-slate-800 font-bold text-xs rounded-xl transition-all flex items-center justify-center gap-2">
                             👤 Edit Profile Info
                         </Link>
 
-                        <Link href="/" className="w-full p-3 bg-slate-900/40 hover:bg-slate-850 text-slate-400 hover:text-slate-200 font-bold text-xs rounded-xl transition-all flex items-center justify-center gap-2 border border-dashed border-slate-800">
+                        <Link href="/lessions" className="w-full p-3 bg-slate-900/40 hover:bg-slate-850 text-slate-400 hover:text-slate-200 font-bold text-xs rounded-xl transition-all flex items-center justify-center gap-2 border border-dashed border-slate-800">
                             🌐 Browse Public Feed
                         </Link>
                     </div>

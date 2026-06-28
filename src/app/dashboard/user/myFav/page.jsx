@@ -22,7 +22,7 @@ const MyFavorites = () => {
         if (!user?.email) return;
         try {
             setLoading(true);
-            const res = await fetch(`${process.env.NEXT_PUBLIC_SERVER_URL}/api/users/${user.email}/favorites`);
+            const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/users/${user.email}/favorites`);
             const data = await res.json();
             setFavorites(data);
             setFilteredFavorites(data);
@@ -57,7 +57,7 @@ const MyFavorites = () => {
     // ৩. ফেভারিট লিস্ট থেকে রিমুভ করার লজিক (টগল ফেভারিট এপিআই কল)
     const handleRemoveFavorite = async (lessonId) => {
         try {
-            const res = await fetch(`${process.env.NEXT_PUBLIC_SERVER_URL}/api/lessons/${lessonId}/favorite`, {
+            const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/lessons/${lessonId}/favorite`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ email: user?.email, toggle: false }) // toggle: false মানে রিমুভ
