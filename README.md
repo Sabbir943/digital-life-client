@@ -1,36 +1,72 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://github.com/vercel/next.js/tree/canary/packages/create-next-app).
+# 🌟 Digital Life Lessons
 
-## Getting Started
+A modern, secure web application where individuals can capture, categorize, and preserve meaningful life lessons, personal growth insights, and wisdom. Built to foster self-reflection, the platform features a hybrid Free/Premium model, real-time community engagement, and comprehensive dashboard analytics.
 
-First, run the development server:
+🚀 **Live Link:** [View Live Site](https://digital-life-client-inky.vercel.app)  
+🖥️ **Server Repository:** [GitHub Link](https://github.com/Sabbir943/digital-life-client)
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
-```
+---
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+## 📖 Table of Contents
+- [Core Purpose](#-core-purpose)
+- [Key Features](#-key-features)
+- [Tech Stack & Dependencies](#-tech-stack--dependencies)
+- [System Access Control](#-system-access-control)
 
-You can start editing the page by modifying `app/page.js`. The page auto-updates as you edit the file.
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+---
 
-## Learn More
+## 🎯 Core Purpose
+Valuable insights are often forgotten amid daily life. **Digital Life Lessons** provides a digital journal to document personal epiphanies. Users can keep their entries completely private, share them publicly for free, or lock premium insights behind a paywall. The platform encourages communal growth by allowing users to explore and interact with shared wisdom.
 
-To learn more about Next.js, take a look at the following resources:
+---
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+## ✨ Key Features
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+### 🔐 Secure Authentication (Better Auth)
+* **Unified Flow:** Credentials signup with explicit client-side validation rules (min 6 characters, at least 1 uppercase, and 1 lowercase letter).
+* **Social Login:** Single-click integration using Google Authentication.
+* **Persistent Session Handling:** Robust protected routes ensure users are never redirected to login when refreshing a private path.
 
-## Deploy on Vercel
+### 💎 Stripe Paywall Integration
+* **One-Time Lifetime Access:** Free tier users can upgrade seamlessly via Stripe (৳1500) to gain lifetime Premium status.
+* **Asynchronous Webhooks:** Webhook listeners ensure reliable and instant data synchronization on successful transactions.
+* **Dynamic Locking & Blurring:** Automatically blurs premium content cards for free users, displaying a clean "Upgrade to Premium" prompt.
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+### 📊 Comprehensive User & Admin Dashboards
+* **User Workspace:** Track creation metrics via analytical charts, manage personal entries in a structured data table, and customize profiles.
+* **Admin Control Center:** Manage global statistics, upgrade user roles, handle reported posts, and mark lessons as "Featured" to display on the landing page hero gallery.
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+### 🎭 UX/UI Interactivity
+* **Framer Motion Elements:** Smooth, modern viewport entry transitions across the landing page.
+* **Toast Feedback Engine:** Replaces standard browser alerts with clean, descriptive context toasts for all operations.
+
+---
+
+## 🛠️ Tech Stack & Dependencies
+
+### Frontend (Client-Side)
+* **Framework:** Next.js  with Tailwind CSS
+* **Animation & Icons:** Framer Motion, Lucide React / React Icons/gravity UI
+* **Key Packages:** `better-auth`, `recharts`, `react-toastify` / `sweetalert2`, `react-share`
+
+### Backend (Server-Side)
+* **Runtime & Framework:**  Express.js
+* **Database Management:** MongoDB (Native Driver / Mongoose)
+* **Payment Gateway:** Stripe Node SDK
+* **Key Packages:** `better-auth`, `dotenv`, `cors`
+
+---
+
+## 🛡️ System Access Control
+
+| Action / Capability | Unauthenticated | Free User | Premium Member | Admin |
+| :--- | :---: | :---: | :---: | :---: |
+| Browse Free Lessons | ✅ | ✅ | ✅ | ✅ |
+| View Premium Lessons | 🔒 (Blurred) | 🔒 (Lock Prompt) | ✅ | ✅ |
+| Access Dashboards | ❌ | ✅ (User) | ✅ (User) | ✅ (Admin) |
+| Author Premium Content | ❌ | ❌ (Disabled) | ✅ | ✅ |
+| Content Moderation | ❌ | ❌ | ❌ | ✅ |
+
+---
+
